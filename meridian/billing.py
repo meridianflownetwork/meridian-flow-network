@@ -27,7 +27,7 @@ PLACEHOLDER_SECRETS = frozenset(
         "your_secure_retainer_token_here",
     }
 )
-PRICE_LOOKUP = "mfn_monthly_retainer"
+DEFAULT_LOOKUP_KEY = "retainer_monthly"
 HANDLED_EVENTS = frozenset(
     {
         "checkout.session.completed",
@@ -196,41 +196,35 @@ def patch_checkout(patch: dict[str, Any], *, matches: dict[str, str]) -> bool:
     return False
 
 
+def retainer_lookup_key() -> str:
+    return _env("STRIPE_LOOKUP_KEY") or DEFAULT_LOOKUP_KEY
+
+
+def _price_id_from_row(row: Any) -> str:
+    if isinstance(row, dict):
+        return str(row.get("id") or "")
+    return str(getattr(row, "id", "") or "")
+
+
 def retainer_price_id(client: Any) -> str:
-    configured = _env("STRIPE_RETAINER_PRICE_ID")
-    if configured.startswith("price_"):
-        return configured
-    listed = client.v1.prices.list(params={"lookup_keys": [PRICE_LOOKUP], "active": True, "limit": 1})
+    lookup_key = retainer_lookup_key()
+    listed = client.v1.prices.list(params={"lookup_keys": [lookup_key], "active": True, "limit": 1})
     data = _as_dict(listed).get("data") or []
     if data:
-        return str(data[0].get("id") or data[0]["id"])
-    key = stripe_secret_key()
-    if key.startswith("sk_live") or key.startswith("rk_live"):
-        raise BillingConfigError("STRIPE_RETAINER_PRICE_ID is missing")
-    product = client.v1.products.create(
-        params={
-            "name": "Monthly retainer",
-            "description": "Meridian Flow Network introduction-desk retainer",
-        }
-    )
-    price = client.v1.prices.create(
-        params={
-            "product": product.id,
-            "currency": DEFAULT_CURRENCY,
-            "unit_amount": retainer_amount_pence(),
-            "recurring": {"interval": "month"},
-            "lookup_key": PRICE_LOOKUP,
-        }
-    )
-    info("billing", f"Created Stripe Price {price.id} — set STRIPE_RETAINER_PRICE_ID to reuse it")
-    return str(price.id)
+        found = _price_id_from_row(data[0])
+        if found.startswith("price_"):
+            return found
+    configured = _env("STRIPE_RETAINER_PRICE_ID")
+    if configured.startswith("price_") and not configured.endswith("..."):
+        return configured
+    raise BillingConfigError(f"No active price found for lookup key: {lookup_key}")
 
 
 def _checkout_method_params() -> dict[str, Any]:
     configuration = _env("STRIPE_PAYMENT_METHOD_CONFIGURATION")
     if configuration.startswith("pmc_"):
         return {"payment_method_configuration": configuration}
-    return {"payment_method_types": [BACS_METHOD]}
+    return {}
 
 
 def _with_session_id(success_url: str) -> str:
@@ -263,7 +257,6 @@ def create_retainer_session(*, email: str, company_name: str, success_url: str, 
                 "cancel_url": cancel_url,
                 "client_reference_id": email[:200],
                 "metadata": metadata,
-                "payment_method_options": {"bacs_debit": {"setup_future_usage": "off_session"}},
                 "subscription_data": {
                     "description": "£4,000 monthly retainer — Bacs Direct Debit",
                     "metadata": metadata,
@@ -295,6 +288,51 @@ def create_retainer_session(*, email: str, company_name: str, success_url: str, 
         }
     )
     info("billing", "Stripe Bacs retainer Checkout session created")
+    return {"id": session.id, "url": url}
+
+
+def create_hosted_retainer_session(*, success_url: str, cancel_url: str) -> dict[str, Any]:
+    client = _stripe_client()
+    amount = retainer_amount_pence()
+    metadata = {"kind": "monthly_retainer"}
+    try:
+        session = client.v1.checkout.sessions.create(
+            params={
+                "mode": "subscription",
+                "locale": "en-GB",
+                "billing_address_collection": "required",
+                "success_url": _with_session_id(success_url),
+                "cancel_url": cancel_url,
+                "managed_payments": {"enabled": False},
+                "metadata": metadata,
+                "subscription_data": {
+                    "description": "£4,000 monthly retainer — Bacs Direct Debit",
+                    "metadata": metadata,
+                },
+                "line_items": [{"price": retainer_price_id(client), "quantity": 1}],
+                **_checkout_method_params(),
+            }
+        )
+    except BillingConfigError:
+        raise
+    except Exception as exc:
+        warn("billing", f"Stripe Checkout session failed ({type(exc).__name__})")
+        raise
+
+    url = getattr(session, "url", None) or _as_dict(session).get("url") or ""
+    if not url:
+        raise BillingGatewayError("Checkout could not be started")
+
+    record_checkout(
+        {
+            "stripe_session_id": session.id,
+            "amount_pence": amount,
+            "currency": DEFAULT_CURRENCY,
+            "status": "created",
+            "last_event": "checkout.session.created",
+        }
+    )
+    info("billing", "Stripe hosted retainer Checkout session created")
     return {"id": session.id, "url": url}
 
 

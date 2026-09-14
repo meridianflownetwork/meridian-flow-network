@@ -143,8 +143,17 @@
   </main>
   <script>
     const parts = location.pathname.split("/").filter(Boolean);
-    const access = parts[2] || new URLSearchParams(location.search).get("access") || "";
-    const ending = parts[3] || "";
+    const params = new URLSearchParams(location.search);
+    let access = params.get("access") || "";
+    let ending = "";
+    if (parts[0] === "success" || parts[0] === "cancel") {
+      ending = parts[0];
+    } else if (parts[2] === "success" || parts[2] === "cancel") {
+      ending = parts[2];
+    } else {
+      access = access || parts[2] || "";
+      ending = parts[3] || "";
+    }
     const $title = document.getElementById("title");
     const $lede = document.getElementById("lede");
     const $form = document.getElementById("form");

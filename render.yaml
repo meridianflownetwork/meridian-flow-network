@@ -41,6 +41,8 @@ services:
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
         sync: false
+      - key: STRIPE_LOOKUP_KEY
+        value: retainer_monthly
       - key: STRIPE_RETAINER_PRICE_ID
         sync: false
       - key: RETAINER_ACCESS_TOKEN

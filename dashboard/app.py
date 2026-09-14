@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -54,6 +54,7 @@ from meridian.billing import (
     BillingSignatureError,
     access_granted,
     create_customer_portal,
+    create_hosted_retainer_session,
     create_retainer_session,
     handle_webhook,
 )
@@ -79,6 +80,8 @@ PUBLIC_PATHS = frozenset({
     "/portal/forgot",
     "/portal/reset",
     "/portal/demo",
+    "/json/version",
+    "/json/list",
 })
 PUBLIC_PREFIXES = (
     "/static/",
@@ -93,9 +96,20 @@ TOKEN_RE = re.compile(
 )
 OPS_HOST = "ops.meridianflownetwork.com"
 PORTAL_HOST = "portal.meridianflownetwork.com"
+APP_HOST = "app.meridianflownetwork.com"
 ROOT_HOST_REWRITES = {
     OPS_HOST: "/desk",
     PORTAL_HOST: "/portal/demo",
+}
+APP_PAY_SUCCESS_URL = "https://app.meridianflownetwork.com/success?session_id={CHECKOUT_SESSION_ID}"
+APP_PAY_CANCEL_URL = "https://app.meridianflownetwork.com/cancel"
+APP_HOST_REWRITES = {
+    "/portal": "/portal",
+    "/pay/retainer": "/pay/retainer",
+    "/pay/retainer/success": "/pay/retainer/success",
+    "/pay/retainer/cancel": "/pay/retainer/cancel",
+    "/success": "/pay/retainer/success",
+    "/cancel": "/pay/retainer/cancel",
 }
 
 
@@ -140,21 +154,35 @@ def _host_from_scope(scope: dict[str, Any]) -> str:
     return ""
 
 
-def _rewritten_root_path(hostname: str, path: str) -> str:
-    if path not in {"", "/"}:
+def _trimmed_path(path: str) -> str:
+    path = path or "/"
+    if len(path) > 1 and path.endswith("/"):
+        return path[:-1]
+    return path or "/"
+
+
+def _rewritten_path(hostname: str, path: str) -> str:
+    trimmed = _trimmed_path(path)
+    if trimmed == "/portal/demo":
+        return "/portal/demo" if path != "/portal/demo" else ""
+    if trimmed in {"", "/"}:
+        return ROOT_HOST_REWRITES.get(hostname, "")
+    if hostname != APP_HOST:
         return ""
-    return ROOT_HOST_REWRITES.get(hostname, "")
+    if trimmed.startswith("/portal/") and trimmed != "/portal":
+        return ""
+    return APP_HOST_REWRITES.get(trimmed, "")
 
 
 class SubdomainRewriteMiddleware:
-    """Map apex paths on ops/portal hosts to /desk and /portal/demo before routing."""
+    """Host-based path mapping for ops, portal, and app subdomains."""
 
     def __init__(self, app: Any) -> None:
         self.app = app
 
     async def __call__(self, scope: dict[str, Any], receive: Any, send: Any) -> None:
         if scope.get("type") in {"http", "websocket"}:
-            target = _rewritten_root_path(
+            target = _rewritten_path(
                 _hostname_from_header(_host_from_scope(scope)),
                 scope.get("path") or "/",
             )
@@ -181,6 +209,11 @@ class OpsAuthMiddleware(BaseHTTPMiddleware):
         path = request.url.path
         if _basic_ok(request):
             return await call_next(request)
+
+        if path.rstrip("/") == "/portal":
+            if not portal_auth_enforced() or request_user(request, "portal") or request_user(request, "desk"):
+                return await call_next(request)
+            return unauthorized(request, login_path="/portal/login", next_path="/portal")
 
         portal_token = _path_portal_token(path)
         if portal_token:
@@ -536,6 +569,36 @@ def desk() -> FileResponse:
     return FileResponse(STATIC / "index.html")
 
 
+@app.get("/pay/retainer")
+def retainer_checkout_redirect() -> RedirectResponse:
+    try:
+        session = create_hosted_retainer_session(
+            success_url=APP_PAY_SUCCESS_URL,
+            cancel_url=APP_PAY_CANCEL_URL,
+        )
+    except BillingConfigError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Stripe error: {str(e)}") from e
+    url = session.get("url") or ""
+    if not url:
+        raise HTTPException(status_code=400, detail="Checkout could not be started")
+    return RedirectResponse(url=url, status_code=303)
+
+
+@app.get("/pay/retainer/success")
+@app.get("/pay/retainer/cancel")
+def retainer_named_page(request: Request) -> FileResponse:
+    token = (request.query_params.get("access") or request.query_params.get("token") or "").strip()
+    session_id = (request.query_params.get("session_id") or "").strip()
+    ending = _trimmed_path(request.url.path).rsplit("/", 1)[-1]
+    if ending in {"success", "cancel"} and (access_granted(token) or session_id.startswith("cs_")):
+        return FileResponse(STATIC / "pay.html")
+    if access_granted(token):
+        return FileResponse(STATIC / "pay.html")
+    raise HTTPException(status_code=404, detail="Not found")
+
+
 @app.get("/pay/retainer/{token}")
 @app.get("/pay/retainer/{token}/success")
 @app.get("/pay/retainer/{token}/cancel")
@@ -577,7 +640,7 @@ def portal_login(payload: LoginPayload, request: Request) -> JSONResponse:
     except Exception:
         raise HTTPException(status_code=503, detail="Sign-in is not available yet")
     destination = safe_next(payload.next, home)
-    if not destination.startswith("/portal/"):
+    if destination != "/portal" and not destination.startswith("/portal/"):
         destination = home
     response = JSONResponse({"ok": True, "user": public_user(result["user"]), "next": destination})
     set_session_cookie(response, request, result["token"], "portal")
@@ -683,6 +746,24 @@ async def stripe_webhook(request: Request) -> dict[str, Any]:
     except BillingSignatureError:
         raise HTTPException(status_code=400, detail="Invalid webhook")
     return {"ok": True, "type": result.get("type"), "handled": result.get("handled")}
+
+
+@app.get("/portal")
+@app.get("/portal/")
+def portal_entry(request: Request):
+    portal_user = request_user(request, "portal")
+    if portal_user:
+        home = portal_home(portal_user)
+        if home.startswith("/portal/") and home not in {"/portal/login", "/portal/demo"}:
+            return RedirectResponse(url=home, status_code=303)
+    if request_user(request, "desk") or not portal_auth_enforced():
+        try:
+            token = _first_active_portal_token()
+        except HTTPException:
+            token = ""
+        if token:
+            return RedirectResponse(url=f"/portal/{token}", status_code=303)
+    return unauthorized(request, login_path="/portal/login", next_path="/portal")
 
 
 @app.get("/portal/demo")
