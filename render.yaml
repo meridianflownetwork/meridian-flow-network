@@ -1,8 +1,13 @@
+# Render Blueprint — FastAPI desk (repo root, Python native runtime)
+# Dashboard → New → Blueprint → meridian-flow-network
+# Private repos cannot use plan: free.
+
 services:
   - type: web
     name: meridian-ops-desk
     runtime: python
-    plan: free
+    plan: starter
+    branch: main
     buildCommand: pip install -r requirements.txt
     startCommand: python run_dashboard.py
     healthCheckPath: /health
@@ -10,24 +15,43 @@ services:
       - key: PYTHON_VERSION
         value: "3.12.8"
       - key: HOST
-        value: 0.0.0.0
+        value: "0.0.0.0"
       - key: PYTHONUNBUFFERED
         value: "1"
       - key: PYTHONIOENCODING
         value: utf-8
+      - key: DASHBOARD_USER
+        value: meridian
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_KEY
         sync: false
-      - key: DASHBOARD_USER
-        value: meridian
+      - key: APP_BASE_URL
+        sync: false
       - key: DASHBOARD_PASSWORD
-        generateValue: true
+        sync: false
+      - key: OPERATOR_EMAIL
+        sync: false
+      - key: OPERATOR_PASSWORD
+        sync: false
+      - key: PORTAL_DEFAULT_PASSWORD
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_RETAINER_PRICE_ID
+        sync: false
+      - key: RETAINER_ACCESS_TOKEN
+        sync: false
 
   - type: cron
     name: meridian-pipeline
     runtime: python
     plan: starter
+    branch: main
     schedule: "0 6 * * *"
     buildCommand: pip install -r requirements.txt
     startCommand: python run_scheduled_pipeline.py
@@ -38,11 +62,11 @@ services:
         value: "1"
       - key: PYTHONIOENCODING
         value: utf-8
-      - key: PIPELINE_MOCK
-        sync: false
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_KEY
+        sync: false
+      - key: PIPELINE_MOCK
         sync: false
       - key: APIFY_TOKEN
         sync: false
