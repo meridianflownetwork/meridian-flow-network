@@ -91,6 +91,12 @@ TOKEN_RE = re.compile(
     r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
     re.IGNORECASE,
 )
+OPS_HOST = "ops.meridianflownetwork.com"
+PORTAL_HOST = "portal.meridianflownetwork.com"
+ROOT_HOST_REWRITES = {
+    OPS_HOST: "/desk",
+    PORTAL_HOST: "/portal/demo",
+}
 
 
 def _is_public(request: Request) -> bool:
@@ -114,6 +120,47 @@ def _basic_ok(request: Request) -> bool:
     except (ValueError, UnicodeDecodeError):
         return False
     return secrets.compare_digest(given_user, user) and secrets.compare_digest(given_password, password)
+
+
+def _hostname_from_header(host: str) -> str:
+    value = (host or "").split(",")[0].strip().lower()
+    if value.startswith("["):
+        end = value.find("]")
+        if end != -1:
+            return value[1:end]
+    if ":" in value:
+        return value.rsplit(":", 1)[0]
+    return value
+
+
+def _host_from_scope(scope: dict[str, Any]) -> str:
+    for key, value in scope.get("headers") or []:
+        if key == b"host":
+            return value.decode("latin-1")
+    return ""
+
+
+def _rewritten_root_path(hostname: str, path: str) -> str:
+    if path not in {"", "/"}:
+        return ""
+    return ROOT_HOST_REWRITES.get(hostname, "")
+
+
+class SubdomainRewriteMiddleware:
+    """Map apex paths on ops/portal hosts to /desk and /portal/demo before routing."""
+
+    def __init__(self, app: Any) -> None:
+        self.app = app
+
+    async def __call__(self, scope: dict[str, Any], receive: Any, send: Any) -> None:
+        if scope.get("type") in {"http", "websocket"}:
+            target = _rewritten_root_path(
+                _hostname_from_header(_host_from_scope(scope)),
+                scope.get("path") or "/",
+            )
+            if target:
+                scope = {**scope, "path": target, "raw_path": target.encode("ascii")}
+        await self.app(scope, receive, send)
 
 
 def _path_portal_token(path: str) -> str:
@@ -166,6 +213,7 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(title="Meridian Flow Network", docs_url=None, redoc_url=None, lifespan=lifespan)
 app.add_middleware(OpsAuthMiddleware)
+app.add_middleware(SubdomainRewriteMiddleware)
 app.mount("/static", StaticFiles(directory=STATIC), name="static")
 
 
