@@ -1,6 +1,6 @@
 # Render Blueprint — FastAPI desk (repo root, Python native runtime)
 # Dashboard → New → Blueprint → meridian-flow-network
-# Cron jobs cannot use plan: free; the web service can.
+# Every service is on plan: free.
 
 services:
   - type: web
@@ -50,7 +50,7 @@ services:
   - type: cron
     name: meridian-pipeline
     runtime: python
-    plan: starter
+    plan: free
     branch: main
     schedule: "0 6 * * *"
     buildCommand: pip install -r requirements.txt
