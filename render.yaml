@@ -1,12 +1,12 @@
 # Render Blueprint — FastAPI desk (repo root, Python native runtime)
 # Dashboard → New → Blueprint → meridian-flow-network
-# Private repos cannot use plan: free.
+# Cron jobs cannot use plan: free; the web service can.
 
 services:
   - type: web
     name: meridian-ops-desk
     runtime: python
-    plan: starter
+    plan: free
     branch: main
     buildCommand: pip install -r requirements.txt
     startCommand: python run_dashboard.py
