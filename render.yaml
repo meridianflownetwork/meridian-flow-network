@@ -1,6 +1,5 @@
 # Render Blueprint — FastAPI desk (repo root, Python native runtime)
 # Dashboard → New → Blueprint → meridian-flow-network
-# Every service is on plan: free.
 
 services:
   - type: web
@@ -45,34 +44,4 @@ services:
       - key: STRIPE_RETAINER_PRICE_ID
         sync: false
       - key: RETAINER_ACCESS_TOKEN
-        sync: false
-
-  - type: cron
-    name: meridian-pipeline
-    runtime: python
-    plan: free
-    branch: main
-    schedule: "0 6 * * *"
-    buildCommand: pip install -r requirements.txt
-    startCommand: python run_scheduled_pipeline.py
-    envVars:
-      - key: PYTHON_VERSION
-        value: "3.12.8"
-      - key: PYTHONUNBUFFERED
-        value: "1"
-      - key: PYTHONIOENCODING
-        value: utf-8
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_KEY
-        sync: false
-      - key: PIPELINE_MOCK
-        sync: false
-      - key: APIFY_TOKEN
-        sync: false
-      - key: LLM_PROVIDER
-        sync: false
-      - key: OPENAI_API_KEY
-        sync: false
-      - key: ANTHROPIC_API_KEY
         sync: false
