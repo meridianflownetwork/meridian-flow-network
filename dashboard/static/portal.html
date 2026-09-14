@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Introductions</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000000'/%3E%3Crect x='6' y='15' width='20' height='2' fill='%2300FFFF'/%3E%3C/svg%3E" />
+  <style>
+    :root {
+      --black: #000000;
+      --cyan: #00FFFF;
+      --cyan-dim: rgba(0, 255, 255, 0.12);
+      --muted: rgba(0, 255, 255, 0.55);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      background: var(--black);
+      color: var(--cyan);
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      min-height: 100%;
+    }
+    body { padding: 28px 32px 64px; }
+    header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      border-bottom: 1px solid var(--cyan);
+      padding-bottom: 20px;
+      margin-bottom: 28px;
+    }
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(22px, 4vw, 32px);
+      font-weight: 400;
+      letter-spacing: 0.06em;
+    }
+    .brand p {
+      margin: 8px 0 0;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .refresh {
+      background: transparent;
+      color: var(--cyan);
+      border: 1px solid var(--cyan);
+      padding: 8px 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .refresh:hover { background: var(--cyan); color: var(--black); }
+    .tools { display: flex; gap: 10px; align-items: center; }
+    h2 {
+      margin: 0 0 14px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 36px;
+    }
+    .card {
+      border: 1px solid var(--cyan);
+      padding: 14px 16px;
+    }
+    .card .label {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .card .value {
+      margin-top: 8px;
+      font-size: 28px;
+      font-weight: 500;
+    }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+    .chip, .actions button {
+      border: 1px solid var(--cyan);
+      background: transparent;
+      color: var(--cyan);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+    .chip.active, .chip:hover, .actions button:hover:not(:disabled) {
+      background: var(--cyan);
+      color: var(--black);
+    }
+    .lead {
+      border: 1px solid var(--cyan);
+      margin-bottom: 12px;
+      padding: 16px 18px;
+    }
+    .lead-top {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+    }
+    .pair { font-size: 15px; font-weight: 500; }
+    .meta {
+      margin-top: 6px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .score {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 22px;
+    }
+    .status {
+      display: inline-block;
+      margin-top: 8px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      border: 1px solid var(--cyan);
+      padding: 3px 8px;
+    }
+    .actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+    .actions button:disabled { opacity: 0.35; cursor: default; }
+    details { margin-top: 14px; }
+    summary {
+      cursor: pointer;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    pre, textarea {
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.55;
+      color: var(--cyan);
+      margin: 10px 0 0;
+    }
+    textarea {
+      width: 100%;
+      min-height: 72px;
+      background: #000;
+      border: 1px solid rgba(0, 255, 255, 0.35);
+      padding: 10px;
+      resize: vertical;
+    }
+    .empty, .error {
+      border: 1px dashed var(--cyan);
+      padding: 24px;
+      color: var(--muted);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+    }
+    .error { color: var(--cyan); }
+    .revise { margin-top: 10px; display: none; }
+    .revise.open { display: block; }
+    .feedback, .queue {
+      margin-top: 14px;
+      border: 1px solid var(--cyan);
+      padding: 12px 14px;
+    }
+    .feedback blockquote {
+      margin: 8px 0 0;
+      color: var(--cyan);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    .feedback .label, .queue .label {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--cyan);
+    }
+    .queue p {
+      margin: 8px 0 0;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      color: var(--cyan);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <h1 id="company">Introductions</h1>
+      <p id="desk">Overseas introductions</p>
+    </div>
+    <div class="tools">
+      <button class="refresh" id="sign-out" type="button">Sign out</button>
+      <button class="refresh" id="reload" type="button">Reload</button>
+    </div>
+  </header>
+
+  <section>
+    <h2>Pipeline</h2>
+    <div class="metrics" id="metrics"></div>
+  </section>
+
+  <section>
+    <h2>Matches</h2>
+    <div class="toolbar" id="filters"></div>
+    <div id="leads"></div>
+  </section>
+
+  <script>
+    const FILTERS = ["all", "draft", "revision_requested", "approved", "sent"];
+    const token = window.location.pathname.split("/").filter(Boolean)[1] || "";
+    let filter = "all";
+    let cache = [];
+
+    const $metrics = document.getElementById("metrics");
+    const $leads = document.getElementById("leads");
+    const $filters = document.getElementById("filters");
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    function card(label, value) {
+      return `<article class="card"><div class="label">${label}</div><div class="value">${value ?? 0}</div></article>`;
+    }
+
+    function renderBrand(brand) {
+      const name = brand.company_name || "Introductions";
+      document.title = name;
+      document.getElementById("company").textContent = name;
+      const parts = [brand.sender_name || "Introductions", brand.product_category, brand.domain].filter(Boolean);
+      document.getElementById("desk").textContent = parts.join(" · ");
+    }
+
+    function renderFilters() {
+      $filters.innerHTML = FILTERS.map((name) =>
+        `<button class="chip ${filter === name ? "active" : ""}" data-filter="${name}" type="button">${name.replaceAll("_", " ")}</button>`
+      ).join("");
+      $filters.querySelectorAll("button").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          filter = btn.dataset.filter;
+          renderFilters();
+          renderLeads();
+        });
+      });
+    }
+
+    function renderMetrics() {
+      const counts = { draft: 0, revision_requested: 0, approved: 0, sent: 0 };
+      cache.forEach((row) => {
+        if (counts[row.approval_status] != null) counts[row.approval_status] += 1;
+      });
+      $metrics.innerHTML = [
+        card("Matches", cache.length),
+        card("Draft", counts.draft),
+        card("Revision", counts.revision_requested),
+        card("Approved", counts.approved),
+        card("Sent", counts.sent),
+      ].join("");
+    }
+
+    function canAct(status) {
+      return status === "draft" || status === "revision_requested" || status === "approved";
+    }
+
+    function renderLeads() {
+      const rows = cache.filter((row) => filter === "all" || row.approval_status === filter);
+      if (!rows.length) {
+        $leads.innerHTML = `<div class="empty">No matches in this view.</div>`;
+        return;
+      }
+      $leads.innerHTML = rows.map((row) => {
+        const open = canAct(row.approval_status);
+        const revising = row.approval_status === "revision_requested";
+        const feedback = revising && row.revision_note
+          ? `<div class="feedback"><div class="label">Client feedback</div><blockquote>${escapeHtml(row.revision_note)}</blockquote></div>`
+          : "";
+        const queue = revising
+          ? `<div class="queue"><div class="label">Draft status</div><p>${escapeHtml(row.draft_status || "Revision pending copy update by system agent")}</p></div>`
+          : "";
+        return `
+          <article class="lead">
+            <div class="lead-top">
+              <div>
+                <div class="pair">${escapeHtml(row.buyer.company_name)}</div>
+                <div class="meta">${escapeHtml(row.buyer.country || "country unset")} · ${escapeHtml(row.buyer.target_industry || "industry unset")}</div>
+                <span class="status">${escapeHtml(row.approval_status.replaceAll("_", " "))}</span>
+              </div>
+              <div class="score">${Number(row.match_score).toFixed(2)}</div>
+            </div>
+            ${feedback}
+            ${queue}
+            <div class="actions">
+              <button type="button" ${open && row.approval_status !== "approved" ? "" : "disabled"} data-id="${row.id}" data-status="approved">Approve</button>
+              <button type="button" ${open && row.approval_status !== "sent" ? "" : "disabled"} data-revise="${row.id}">Request revision</button>
+            </div>
+            <div class="revise" id="revise-${row.id}">
+              <textarea placeholder="What should change in this letter?" maxlength="2000"></textarea>
+              <div class="actions">
+                <button type="button" data-id="${row.id}" data-status="revision_requested">Send revision request</button>
+              </div>
+            </div>
+            <details>
+              <summary>Outreach draft</summary>
+              <pre>${escapeHtml(row.outreach_draft || "No copy yet.")}</pre>
+            </details>
+          </article>`;
+      }).join("");
+      $leads.querySelectorAll("[data-revise]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.getElementById(`revise-${btn.dataset.revise}`).classList.toggle("open");
+        });
+      });
+      $leads.querySelectorAll(".actions button[data-status]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const box = document.querySelector(`#revise-${btn.dataset.id} textarea`);
+          setStatus(btn.dataset.id, btn.dataset.status, box ? box.value : "");
+        });
+      });
+    }
+
+    async function load() {
+      try {
+        const response = await fetch(`/api/portal/${token}`);
+        if (response.status === 401) {
+          location.href = `/portal/login?next=/portal/${token}`;
+          return;
+        }
+        if (!response.ok) {
+          $leads.innerHTML = `<div class="error">This introductions desk could not be opened.</div>`;
+          return;
+        }
+        const data = await response.json();
+        cache = data.leads || [];
+        renderBrand(data.brand || {});
+        renderMetrics();
+        renderFilters();
+        renderLeads();
+      } catch (err) {
+        $leads.innerHTML = `<div class="error">Could not reach the introductions desk.</div>`;
+      }
+    }
+
+    async function setStatus(id, status, note) {
+      const response = await fetch(`/api/portal/${token}/leads/${id}/status`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status, note }),
+      });
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        alert(body.detail || "Update failed");
+        return;
+      }
+      await load();
+    }
+
+    document.getElementById("reload").addEventListener("click", load);
+    document.getElementById("sign-out").addEventListener("click", async () => {
+      await fetch("/api/auth/logout", { method: "POST" }).catch(() => null);
+      location.href = "/portal/login";
+    });
+    load();
+  </script>
+</body>
+</html>

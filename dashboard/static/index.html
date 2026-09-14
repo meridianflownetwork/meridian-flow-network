@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Meridian Flow Network — Operations Desk</title>
+  <link rel="icon" href="/static/logo.svg" type="image/svg+xml" />
+  <style>
+    :root {
+      --black: #000000;
+      --cyan: #00FFFF;
+      --cyan-dim: rgba(0, 255, 255, 0.12);
+      --ink: #00FFFF;
+      --muted: rgba(0, 255, 255, 0.55);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      background: var(--black);
+      color: var(--cyan);
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      min-height: 100%;
+    }
+    body { padding: 28px 32px 64px; }
+    header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      border-bottom: 1px solid var(--cyan);
+      padding-bottom: 20px;
+      margin-bottom: 28px;
+    }
+    .brand { align-self: center; }
+    .desk-tools {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+      flex: 0 0 auto;
+    }
+    .notify-bell {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      background: transparent;
+      color: var(--cyan);
+      border: 1px solid var(--cyan);
+      cursor: pointer;
+    }
+    .notify-bell:hover, .notify-bell[aria-expanded="true"] {
+      background: var(--cyan);
+      color: var(--black);
+    }
+    .notify-bell svg {
+      display: block;
+      margin: 0 auto;
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .notify-badge {
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ff2d2d;
+      box-shadow: 0 0 0 2px #000;
+    }
+    .notify-scrim {
+      position: fixed;
+      inset: 0;
+      background: transparent;
+      z-index: 30;
+      display: none;
+    }
+    .notify-scrim.open { display: block; }
+    .notify-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: min(380px, 100vw);
+      height: 100vh;
+      background: #000;
+      color: var(--cyan);
+      border-left: 1px solid var(--cyan);
+      z-index: 40;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.22s ease;
+    }
+    .notify-drawer.open { transform: translateX(0); }
+    .notify-drawer-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 18px 14px;
+      border-bottom: 1px solid var(--cyan);
+    }
+    .notify-drawer-head h2 { margin: 0; }
+    .notify-close {
+      background: transparent;
+      color: var(--cyan);
+      border: 1px solid var(--cyan);
+      width: 32px;
+      height: 32px;
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .notify-close:hover { background: var(--cyan); color: var(--black); }
+    .notify-feed {
+      list-style: none;
+      margin: 0;
+      padding: 8px 18px 24px;
+      overflow: auto;
+      flex: 1;
+    }
+    .notify-feed li {
+      border: 1px solid var(--cyan);
+      padding: 14px 14px 12px;
+      margin-top: 10px;
+    }
+    .notify-feed .pair { font-size: 14px; }
+    .notify-feed .meta { margin-top: 6px; }
+    .notify-empty {
+      margin: 48px 24px;
+      text-align: center;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+    .brand { display: flex; align-items: center; gap: 20px; }
+    .brand img {
+      height: 96px;
+      width: 210px;
+      display: block;
+      object-fit: cover;
+      object-position: center;
+      background: #000000;
+    }
+    .brand p {
+      margin: 0;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .refresh {
+      background: transparent;
+      color: var(--cyan);
+      border: 1px solid var(--cyan);
+      padding: 8px 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .refresh:hover { background: var(--cyan); color: var(--black); }
+    h2 {
+      margin: 0 0 14px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 36px;
+    }
+    .card {
+      border: 1px solid var(--cyan);
+      padding: 14px 16px;
+      background: var(--black);
+    }
+    .card .label {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .card .value {
+      margin-top: 8px;
+      font-size: 28px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 16px;
+    }
+    .chip {
+      border: 1px solid var(--cyan);
+      background: transparent;
+      color: var(--cyan);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+    .chip.active, .chip:hover { background: var(--cyan); color: var(--black); }
+    .lead {
+      border: 1px solid var(--cyan);
+      margin-bottom: 12px;
+      padding: 16px 18px;
+    }
+    .lead-top {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: start;
+    }
+    .pair { font-size: 15px; font-weight: 500; }
+    .meta {
+      margin-top: 6px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .score-wrap { text-align: right; min-width: 120px; }
+    .score {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 22px;
+      letter-spacing: 0.06em;
+    }
+    .bar {
+      margin-top: 8px;
+      height: 3px;
+      background: var(--cyan-dim);
+    }
+    .bar > i {
+      display: block;
+      height: 100%;
+      background: var(--cyan);
+    }
+    .status {
+      display: inline-block;
+      margin-top: 8px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      border: 1px solid var(--cyan);
+      padding: 3px 8px;
+    }
+    .actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+    .actions button {
+      background: transparent;
+      color: var(--cyan);
+      border: 1px solid var(--cyan);
+      padding: 7px 12px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .actions button:hover:not(:disabled) { background: var(--cyan); color: var(--black); }
+    .actions button:disabled { opacity: 0.35; cursor: default; }
+    details { margin-top: 14px; }
+    summary {
+      cursor: pointer;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.55;
+      color: var(--cyan);
+      border-top: 1px solid var(--cyan-dim);
+      margin: 10px 0 0;
+      padding-top: 10px;
+    }
+    .empty, .error {
+      border: 1px dashed var(--cyan);
+      padding: 24px;
+      color: var(--muted);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+    }
+    .error { color: var(--cyan); }
+    .nav { display: flex; gap: 8px; margin: -8px 0 28px; flex-wrap: wrap; }
+    .nav .chip { text-decoration: none; }
+    .hidden { display: none; }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+    .client-row { cursor: pointer; }
+    .client-row:hover { background: var(--cyan-dim); }
+    .settings {
+      border: 1px solid var(--cyan);
+      padding: 18px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px 16px;
+      margin-bottom: 28px;
+    }
+    .settings label {
+      display: block;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .settings input, .settings select {
+      width: 100%;
+      background: #000;
+      color: var(--cyan);
+      border: 1px solid rgba(0, 255, 255, 0.35);
+      padding: 8px 10px;
+      font: 14px/1.4 "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    }
+    .settings .full { grid-column: 1 / -1; }
+    .settings .toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .settings button {
+      justify-self: start;
+      background: var(--cyan);
+      color: var(--black);
+      border: 1px solid var(--cyan);
+      padding: 8px 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    @media (max-width: 800px) { .settings { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <img src="/static/logo.svg" alt="Meridian Flow Network" width="210" height="96" />
+        <p>Operations desk / matching pipeline · <a href="/" style="color:inherit">Public site</a> · <a href="/desk/login" id="sign-out" style="color:inherit">Sign out</a></p>
+    </div>
+    <div class="desk-tools">
+      <button class="refresh" id="reload" type="button">Reload</button>
+      <button class="notify-bell" id="notify-toggle" type="button" aria-expanded="false" aria-controls="notify-drawer" title="Notifications">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 17.5H8.5c-2.2 0-3.5-1.5-3.5-3.2 0-1.5.7-2.5 1.4-3.4.5-.7.8-1.5.8-2.4C7.2 6 9.3 4 12 4s4.8 2 4.8 4.5c0 .9.3 1.7.8 2.4.7.9 1.4 1.9 1.4 3.4 0 1.7-1.3 3.2-3.5 3.2z"/><path d="M10 17.8c.4 1.3 1.1 2 2 2s1.6-.7 2-2"/></svg>
+        <span class="notify-badge" aria-hidden="true"></span>
+        <span class="sr-only">Notifications</span>
+      </button>
+    </div>
+  </header>
+  <div class="notify-scrim" id="notify-scrim" hidden></div>
+  <aside class="notify-drawer" id="notify-drawer" aria-labelledby="notify-title" aria-hidden="true">
+    <div class="notify-drawer-head">
+      <h2 id="notify-title">Notifications</h2>
+      <button class="notify-close" id="notify-close" type="button" aria-label="Close notifications">×</button>
+    </div>
+    <p class="notify-empty hidden" id="notify-empty">You are yet to receive notifications</p>
+    <ol class="notify-feed" id="notify-feed"></ol>
+  </aside>
+
+  <div class="nav">
+    <button class="chip active" type="button" data-view="network">Network</button>
+    <button class="chip" type="button" data-view="clients">Client management</button>
+  </div>
+
+  <div id="view-network">
+  <section>
+    <h2>Scraper</h2>
+    <div class="metrics" id="metrics"><article class="card"><div class="label">Loading</div><div class="value">...</div></article></div>
+  </section>
+
+  <section>
+    <h2>Access requests</h2>
+    <div id="inquiries"></div>
+  </section>
+
+  <section>
+    <h2>Client portals</h2>
+    <div id="portals"></div>
+  </section>
+
+  <section>
+    <h2>Matched leads</h2>
+    <div class="toolbar" id="filters"></div>
+    <div id="leads"></div>
+  </section>
+  </div>
+
+  <div id="view-clients" class="hidden">
+    <section id="client-list-wrap">
+      <h2>Active clients</h2>
+      <div id="client-list"></div>
+    </section>
+    <section id="client-detail-wrap" class="hidden">
+      <div class="toolbar">
+        <button class="chip" type="button" id="client-back">Back to list</button>
+        <a class="chip" id="client-portal" href="#" target="_blank" rel="noopener">Open portal</a>
+      </div>
+      <h2 id="client-title">Client</h2>
+      <div class="metrics" id="client-metrics"></div>
+      <h2>Configuration</h2>
+      <form class="settings" id="client-settings">
+        <div>
+          <label for="cfg-company">White-label company name</label>
+          <input id="cfg-company" name="company_name" maxlength="200" />
+        </div>
+        <div>
+          <label for="cfg-sender">Sender name</label>
+          <input id="cfg-sender" name="sender_name" maxlength="160" />
+        </div>
+        <div>
+          <label for="cfg-email">Reply-to email</label>
+          <input id="cfg-email" name="reply_to_email" type="email" maxlength="200" />
+        </div>
+        <div>
+          <label for="cfg-domain">Domain</label>
+          <input id="cfg-domain" name="domain" maxlength="160" placeholder="hydraulics.example" />
+        </div>
+        <div class="full">
+          <label for="cfg-category">Product category</label>
+          <input id="cfg-category" name="product_category" maxlength="200" />
+        </div>
+        <div class="full toggle">
+          <input id="cfg-pipeline" name="pipeline_enabled" type="checkbox" />
+          <label for="cfg-pipeline" style="margin:0">Automated matching pipeline</label>
+        </div>
+        <div class="full">
+          <button type="submit">Save settings</button>
+          <span class="meta" id="cfg-status"></span>
+        </div>
+      </form>
+      <h2>Matched leads</h2>
+      <div id="client-leads"></div>
+    </section>
+  </div>
+
+  <script>
+    const FILTERS = ["all", "draft", "revision_requested", "approved", "sent"];
+    let filter = "all";
+    let cache = [];
+
+    const $metrics = document.getElementById("metrics");
+    const $leads = document.getElementById("leads");
+    const $filters = document.getElementById("filters");
+    const $inquiries = document.getElementById("inquiries");
+    const $portals = document.getElementById("portals");
+
+    function card(label, value) {
+      return `<article class="card"><div class="label">${label}</div><div class="value">${value ?? 0}</div></article>`;
+    }
+
+    function renderFilters() {
+      $filters.innerHTML = FILTERS.map((name) =>
+        `<button class="chip ${filter === name ? "active" : ""}" data-filter="${name}" type="button">${name}</button>`
+      ).join("");
+      $filters.querySelectorAll("button").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          filter = btn.dataset.filter;
+          renderFilters();
+          renderLeads();
+        });
+      });
+    }
+
+    function renderMetrics(data) {
+      const b = data.buyers;
+      const l = data.leads;
+      const range = l.score_min != null ? `${l.score_min.toFixed(2)}-${l.score_max.toFixed(2)}` : "—";
+      $metrics.innerHTML = [
+        card("Buyers", b.total),
+        card("Pending enrichment", b.pending_enrichment),
+        card("Enriched", b.enriched),
+        card("Failed", b.failed_enrichment),
+        card("Tenders", b.tenders || 0),
+        card("Expansions", b.expansions || 0),
+        card("Filings", b.filings || 0),
+        card("Leads", l.total),
+        card("Draft", l.draft),
+        card("Approved", l.approved),
+        card("Revision", l.revision_requested || 0),
+        card("Sent", l.sent),
+        card("Score range", range),
+        card("Access requests", data.inquiries ? data.inquiries.pending : 0),
+      ].join("");
+    }
+
+    function renderLeads() {
+      const rows = cache.filter((row) => filter === "all" || row.approval_status === filter);
+      if (!rows.length) {
+        $leads.innerHTML = `<div class="empty">No leads in this view.</div>`;
+        return;
+      }
+      $leads.innerHTML = rows.map((row) => {
+        const width = Math.max(0, Math.min(100, row.match_score));
+        const draft = row.approval_status === "draft";
+        const canSend = row.approval_status === "draft" || row.approval_status === "approved";
+        return `
+          <article class="lead">
+            <div class="lead-top">
+              <div>
+                <div class="pair">${escapeHtml(row.buyer.company_name)}  /  ${escapeHtml(row.client.client_name)}</div>
+                <div class="meta">${escapeHtml(row.buyer.country || "country unset")} · ${escapeHtml(row.buyer.target_industry || "industry unset")} · ${escapeHtml(row.client.product_category || "")}</div>
+                <span class="status">${escapeHtml(row.approval_status.replaceAll("_", " "))}</span>
+                ${row.revision_note ? `<div class="meta">Revision: ${escapeHtml(row.revision_note)}</div>` : ""}
+              </div>
+              <div class="score-wrap">
+                <div class="score">${row.match_score.toFixed(2)}</div>
+                <div class="bar"><i style="width:${width}%"></i></div>
+              </div>
+            </div>
+            <div class="actions">
+              <button type="button" ${draft ? "" : "disabled"} data-id="${row.id}" data-status="approved">Approve</button>
+              <button type="button" ${canSend ? "" : "disabled"} data-id="${row.id}" data-status="sent">Mark sent</button>
+            </div>
+            <details>
+              <summary>Outreach draft</summary>
+              <pre>${escapeHtml(row.outreach_draft || "No copy yet.")}</pre>
+            </details>
+          </article>`;
+      }).join("");
+      $leads.querySelectorAll(".actions button[data-status]").forEach((btn) => {
+        btn.addEventListener("click", () => setStatus(btn.dataset.id, btn.dataset.status));
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    function renderPortals(rows) {
+      if (!rows.length) {
+        $portals.innerHTML = `<div class="empty">No client portal tokens yet.</div>`;
+        return;
+      }
+      $portals.innerHTML = rows.map((row) => `
+        <article class="lead">
+          <div class="lead-top">
+            <div>
+              <div class="pair">${escapeHtml(row.name)}</div>
+              <div class="meta">${escapeHtml(row.path)}</div>
+            </div>
+            <div class="actions" style="margin-top:0">
+              <a class="refresh" href="${escapeHtml(row.path)}" target="_blank" rel="noopener">Open portal</a>
+            </div>
+          </div>
+        </article>`).join("");
+    }
+
+    function renderInquiries(rows) {
+      if (!rows.length) {
+        $inquiries.innerHTML = `<div class="empty">No access requests yet.</div>`;
+        return;
+      }
+      $inquiries.innerHTML = rows.map((row) => `
+        <article class="lead">
+          <div class="lead-top">
+            <div>
+              <div class="pair">${escapeHtml(row.company_name)}  /  ${escapeHtml(row.contact_name)}</div>
+              <div class="meta">${escapeHtml(row.email)} · ${escapeHtml(row.country || "country unset")} · ${escapeHtml(row.product_category || "")}</div>
+              <span class="status">${escapeHtml(row.status || "pending")}</span>
+            </div>
+          </div>
+          <details>
+            <summary>Inquiry</summary>
+            <pre>${escapeHtml(row.capabilities || "")}${row.capabilities && row.message ? "\n\n" : ""}${escapeHtml(row.message || "No note.")}</pre>
+          </details>
+        </article>`).join("");
+    }
+
+    async function load() {
+      try {
+        const replies = await Promise.all([
+          fetch("/api/metrics"),
+          fetch("/api/leads"),
+          fetch("/api/inquiries"),
+          fetch("/api/portals"),
+          fetch("/api/clients"),
+        ]);
+        if (replies.some((row) => row.status === 401)) {
+          location.href = "/desk/login?next=/desk";
+          return;
+        }
+        const [metrics, leads, inquiries, portals, clients] = await Promise.all(replies.map((row) => row.json()));
+        cache = leads.leads || [];
+        renderMetrics(metrics);
+        renderFilters();
+        renderLeads();
+        renderInquiries(inquiries.inquiries || []);
+        renderPortals(portals.portals || []);
+        renderClientList(clients.clients || []);
+      } catch (err) {
+        $leads.innerHTML = `<div class="error">Could not reach the operations API. ${escapeHtml(err)}</div>`;
+      }
+    }
+
+    async function setStatus(id, status) {
+      const response = await fetch(`/api/leads/${id}/status`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        alert(body.detail || "Status update failed");
+        return;
+      }
+      await load();
+    }
+
+    const $clientList = document.getElementById("client-list");
+    const $clientListWrap = document.getElementById("client-list-wrap");
+    const $clientDetail = document.getElementById("client-detail-wrap");
+    const $clientLeads = document.getElementById("client-leads");
+    let selectedClient = null;
+
+    function setView(name) {
+      document.getElementById("view-network").classList.toggle("hidden", name !== "network");
+      document.getElementById("view-clients").classList.toggle("hidden", name !== "clients");
+      document.querySelectorAll(".nav [data-view]").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.view === name);
+      });
+    }
+
+    function renderClientList(rows) {
+      if (!rows.length) {
+        $clientList.innerHTML = `<div class="empty">No clients on the catalog.</div>`;
+        return;
+      }
+      $clientList.innerHTML = rows.map((row) => {
+        const m = row.metrics || {};
+        return `
+          <article class="lead client-row" data-client="${row.id}">
+            <div class="lead-top">
+              <div>
+                <div class="pair">${escapeHtml(row.company_name)}</div>
+                <div class="meta">${escapeHtml(row.product_category || "")} · ${escapeHtml((row.target_regions || []).join(", "))}</div>
+                <span class="status">${row.pipeline_enabled ? "pipeline on" : "pipeline paused"}</span>
+              </div>
+              <div class="score-wrap">
+                <div class="score">${m.leads || 0}</div>
+                <div class="meta">leads · ${m.approved || 0} approved · ${m.draft || 0} draft</div>
+              </div>
+            </div>
+          </article>`;
+      }).join("");
+      $clientList.querySelectorAll("[data-client]").forEach((el) => {
+        el.addEventListener("click", () => openClient(el.dataset.client));
+      });
+    }
+
+    function renderClientDetail(data) {
+      selectedClient = data;
+      document.getElementById("client-title").textContent = data.company_name;
+      const portal = document.getElementById("client-portal");
+      portal.href = data.portal_path || "#";
+      portal.style.display = data.portal_path ? "" : "none";
+      const m = data.metrics || {};
+      const range = m.score_min != null ? `${m.score_min.toFixed(2)}-${m.score_max.toFixed(2)}` : "—";
+      document.getElementById("client-metrics").innerHTML = [
+        card("Leads", m.leads),
+        card("Draft", m.draft),
+        card("Approved", m.approved),
+        card("Revision", m.revision_requested),
+        card("Sent", m.sent),
+        card("Score range", range),
+        card("Pipeline", data.pipeline_enabled ? "On" : "Off"),
+      ].join("");
+      document.getElementById("cfg-company").value = data.company_name || "";
+      document.getElementById("cfg-sender").value = data.sender_name || "";
+      document.getElementById("cfg-email").value = data.reply_to_email || "";
+      document.getElementById("cfg-domain").value = data.domain || "";
+      document.getElementById("cfg-category").value = data.product_category || "";
+      document.getElementById("cfg-pipeline").checked = !!data.pipeline_enabled;
+      document.getElementById("cfg-status").textContent = "";
+      const leads = data.leads || [];
+      if (!leads.length) {
+        $clientLeads.innerHTML = `<div class="empty">No matched leads for this client.</div>`;
+      } else {
+        $clientLeads.innerHTML = leads.map((row) => `
+          <article class="lead">
+            <div class="lead-top">
+              <div>
+                <div class="pair">${escapeHtml(row.buyer.company_name)}</div>
+                <div class="meta">${escapeHtml(row.buyer.country || "country unset")} · ${escapeHtml(row.buyer.target_industry || "")}</div>
+                <span class="status">${escapeHtml(row.approval_status.replaceAll("_", " "))}</span>
+                ${row.revision_note ? `<div class="meta">Revision: ${escapeHtml(row.revision_note)}</div>` : ""}
+              </div>
+              <div class="score">${Number(row.match_score).toFixed(2)}</div>
+            </div>
+            <details>
+              <summary>Outreach draft</summary>
+              <pre>${escapeHtml(row.outreach_draft || "No copy yet.")}</pre>
+            </details>
+          </article>`).join("");
+      }
+      $clientListWrap.classList.add("hidden");
+      $clientDetail.classList.remove("hidden");
+    }
+
+    async function openClient(id) {
+      const response = await fetch(`/api/clients/${id}`);
+      if (!response.ok) {
+        $clientList.innerHTML = `<div class="error">Could not open this client.</div>`;
+        return;
+      }
+      renderClientDetail(await response.json());
+    }
+
+    document.querySelectorAll(".nav [data-view]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        setView(btn.dataset.view);
+        if (btn.dataset.view === "clients") {
+          $clientDetail.classList.add("hidden");
+          $clientListWrap.classList.remove("hidden");
+        }
+      });
+    });
+    document.getElementById("client-back").addEventListener("click", () => {
+      $clientDetail.classList.add("hidden");
+      $clientListWrap.classList.remove("hidden");
+      selectedClient = null;
+    });
+    document.getElementById("client-settings").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!selectedClient) return;
+      const status = document.getElementById("cfg-status");
+      const body = {
+        company_name: document.getElementById("cfg-company").value,
+        sender_name: document.getElementById("cfg-sender").value,
+        reply_to_email: document.getElementById("cfg-email").value,
+        domain: document.getElementById("cfg-domain").value,
+        product_category: document.getElementById("cfg-category").value,
+        pipeline_enabled: document.getElementById("cfg-pipeline").checked,
+      };
+      const response = await fetch(`/api/clients/${selectedClient.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        status.textContent = err.detail || "Save failed";
+        return;
+      }
+      renderClientDetail(await response.json());
+      status.textContent = "Saved";
+      const list = await fetch("/api/clients").then((r) => r.json());
+      renderClientList(list.clients || []);
+    });
+
+    document.getElementById("reload").addEventListener("click", load);
+    document.getElementById("sign-out").addEventListener("click", async (event) => {
+      event.preventDefault();
+      await fetch("/api/auth/logout", { method: "POST" }).catch(() => null);
+      location.href = "/desk/login";
+    });
+    load();
+  </script>
+  <script>
+    (function notificationsFeed() {
+      const EVENTS = [
+        { type: "opened", buyer: "PETRONAS Downstream Maintenance Upgrade — Package B", house: "Atelier Roche & Cie", agoMin: 4 },
+        { type: "replied", buyer: "Export Solutions", house: "Atelier Roche & Cie", agoMin: 18 },
+        { type: "opened", buyer: "SDN26EOI006 / WFP Sudan drinking water", house: "Atelier Roche & Cie", agoMin: 41 },
+        { type: "replied", buyer: "RFQ-2026-14 National consultancy", house: "Vallecchia Hydraulics S.r.l.", agoMin: 96 },
+        { type: "opened", buyer: "Media firm for Digital Marketing (NJFP)", house: "Vallecchia Hydraulics S.r.l.", agoMin: 210 },
+      ];
+      const started = Date.now();
+      const $feed = document.getElementById("notify-feed");
+      const $empty = document.getElementById("notify-empty");
+      const $toggle = document.getElementById("notify-toggle");
+      const $close = document.getElementById("notify-close");
+      const $drawer = document.getElementById("notify-drawer");
+      const $scrim = document.getElementById("notify-scrim");
+      if (!$feed || !$toggle || !$drawer) return;
+
+      function ago(mins) {
+        const elapsed = Math.floor((Date.now() - started) / 60000);
+        const total = mins + elapsed;
+        if (total < 1) return "just now";
+        if (total < 60) return total + "m ago";
+        const hours = Math.floor(total / 60);
+        if (hours < 24) return hours + "h ago";
+        return Math.floor(hours / 24) + "d ago";
+      }
+
+      function verb(type) {
+        return type === "replied" ? "replied to introduction" : "opened introduction";
+      }
+
+      function render() {
+        if (!EVENTS.length) {
+          $feed.innerHTML = "";
+          if ($empty) $empty.classList.remove("hidden");
+          return;
+        }
+        if ($empty) $empty.classList.add("hidden");
+        $feed.innerHTML = EVENTS.map((row) => `
+          <li>
+            <div class="pair">${row.buyer}</div>
+            <div class="meta">${verb(row.type)} · ${row.house} · ${ago(row.agoMin)}</div>
+            <span class="status">${row.type}</span>
+          </li>`).join("");
+      }
+
+      function setOpen(open) {
+        $drawer.classList.toggle("open", open);
+        $drawer.setAttribute("aria-hidden", open ? "false" : "true");
+        $toggle.setAttribute("aria-expanded", open ? "true" : "false");
+        if ($scrim) {
+          $scrim.classList.toggle("open", open);
+          $scrim.hidden = !open;
+        }
+      }
+
+      $toggle.addEventListener("click", (event) => {
+        event.stopPropagation();
+        setOpen(!$drawer.classList.contains("open"));
+      });
+      if ($close) $close.addEventListener("click", () => setOpen(false));
+      if ($scrim) $scrim.addEventListener("click", () => setOpen(false));
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") setOpen(false);
+      });
+
+      render();
+      setInterval(render, 15000);
+    })();
+  </script>
+</body>
+</html>

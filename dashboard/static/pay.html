@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Monthly retainer</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <link rel="icon" href="/static/logo.svg" type="image/svg+xml" />
+  <style>
+    :root {
+      --black: #000000;
+      --cyan: #00FFFF;
+      --muted: rgba(0, 255, 255, 0.55);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--black);
+      color: var(--cyan);
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+    .card {
+      width: min(480px, 100%);
+      border: 1px solid var(--cyan);
+      padding: 32px 28px 28px;
+    }
+    .brand {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    .brand img {
+      height: 84px;
+      width: 184px;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      text-align: center;
+    }
+    .lede, .fine {
+      color: var(--muted);
+      font-family: Consolas, "Courier New", monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+    .lede { margin: 0 0 24px; font-size: 11px; }
+    .amount {
+      border: 1px solid var(--cyan);
+      padding: 18px 16px;
+      margin-bottom: 22px;
+      text-align: center;
+    }
+    .amount strong {
+      display: block;
+      font-size: 32px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+    }
+    .amount span {
+      display: block;
+      margin-top: 8px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    input {
+      width: 100%;
+      background: #000;
+      color: var(--cyan);
+      border: 1px solid var(--cyan);
+      padding: 10px 12px;
+      margin-bottom: 16px;
+      font-size: 15px;
+    }
+    button {
+      width: 100%;
+      background: var(--cyan);
+      color: var(--black);
+      border: 1px solid var(--cyan);
+      padding: 11px 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    button.ghost {
+      margin-top: 12px;
+      background: transparent;
+      color: var(--cyan);
+    }
+    .fine { margin: 18px 0 0; font-size: 10px; line-height: 1.6; }
+    .error { color: #ff6b6b; font-size: 13px; margin: 0 0 14px; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="brand">
+      <img src="/static/logo.svg" alt="Meridian Flow Network" width="184" height="84" />
+    </div>
+    <h1 id="title">Monthly retainer</h1>
+    <p class="lede" id="lede">Secure Direct Debit checkout</p>
+    <div class="amount" id="amount-box">
+      <strong>£4,000</strong>
+      <span>Monthly · Bacs Direct Debit</span>
+    </div>
+    <p class="error hidden" id="error"></p>
+    <form id="form">
+      <label for="company">Company</label>
+      <input id="company" name="company" type="text" maxlength="200" autocomplete="organization" required />
+      <label for="email">Billing email</label>
+      <input id="email" name="email" type="email" maxlength="200" autocomplete="email" required />
+      <button type="submit" id="submit">Continue to secure checkout</button>
+    </form>
+    <button type="button" class="ghost hidden" id="invoices">View invoices</button>
+    <p class="fine" id="fine">You will confirm the Direct Debit mandate on Stripe’s hosted checkout. This page is not listed on the public site.</p>
+  </main>
+  <script>
+    const parts = location.pathname.split("/").filter(Boolean);
+    const access = parts[2] || new URLSearchParams(location.search).get("access") || "";
+    const ending = parts[3] || "";
+    const $title = document.getElementById("title");
+    const $lede = document.getElementById("lede");
+    const $form = document.getElementById("form");
+    const $error = document.getElementById("error");
+    const $fine = document.getElementById("fine");
+    const $invoices = document.getElementById("invoices");
+    const sessionId = new URLSearchParams(location.search).get("session_id") || "";
+
+    if (ending === "success") {
+      $title.textContent = "Mandate received";
+      $lede.textContent = "Direct Debit";
+      $form.classList.add("hidden");
+      $fine.textContent = "Stripe has accepted the checkout. The first £4,000 collection follows the Bacs clearing window. Fulfilment is confirmed by webhook, not this page.";
+      if (sessionId) $invoices.classList.remove("hidden");
+    } else if (ending === "cancel") {
+      $title.textContent = "Checkout cancelled";
+      $lede.textContent = "No payment was taken";
+      $fine.textContent = "You can restart the Direct Debit setup with the same secure link when you are ready.";
+    }
+
+    $form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      $error.classList.add("hidden");
+      const button = document.getElementById("submit");
+      button.disabled = true;
+      try {
+        const response = await fetch("/api/pay/retainer/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            access,
+            company_name: document.getElementById("company").value,
+            email: document.getElementById("email").value,
+          }),
+        });
+        const body = await response.json().catch(() => ({}));
+        const detail = Array.isArray(body.detail)
+          ? body.detail.map((row) => row.msg || row).join(" ")
+          : body.detail;
+        if (!response.ok) throw new Error(detail || "Checkout could not be started");
+        if (!body.url) throw new Error("Checkout URL missing");
+        location.href = body.url;
+      } catch (err) {
+        $error.textContent = err.message || "Checkout could not be started";
+        $error.classList.remove("hidden");
+        button.disabled = false;
+      }
+    });
+
+    $invoices.addEventListener("click", async () => {
+      $error.classList.add("hidden");
+      $invoices.disabled = true;
+      try {
+        const response = await fetch("/api/pay/retainer/portal", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ access, session_id: sessionId }),
+        });
+        const body = await response.json().catch(() => ({}));
+        const detail = Array.isArray(body.detail)
+          ? body.detail.map((row) => row.msg || row).join(" ")
+          : body.detail;
+        if (!response.ok) throw new Error(detail || "Invoice portal could not be opened");
+        if (!body.url) throw new Error("Invoice portal URL missing");
+        location.href = body.url;
+      } catch (err) {
+        $error.textContent = err.message || "Invoice portal could not be opened";
+        $error.classList.remove("hidden");
+        $invoices.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

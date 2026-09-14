@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign in</title>
+  <link rel="icon" href="/static/logo.svg" type="image/svg+xml" />
+  <style>
+    :root {
+      --black: #000000;
+      --cyan: #00FFFF;
+      --muted: rgba(0, 255, 255, 0.55);
+      --line: rgba(0, 255, 255, 0.35);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--black);
+      color: var(--cyan);
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { background: var(--cyan); color: var(--black); }
+    .card {
+      width: min(440px, 100%);
+      border: 1px solid var(--cyan);
+      padding: 32px 28px 28px;
+    }
+    .brand {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+    .brand img {
+      height: 84px;
+      width: 184px;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+    .mark {
+      width: 42px;
+      height: 42px;
+      margin: 0 auto 16px;
+      border: 1px solid var(--cyan);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .mark span {
+      width: 18px;
+      height: 2px;
+      background: var(--cyan);
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      text-align: center;
+    }
+    .lede {
+      margin: 0 0 28px;
+      text-align: center;
+      color: var(--muted);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    input {
+      width: 100%;
+      background: #000;
+      color: var(--cyan);
+      border: 1px solid var(--cyan);
+      padding: 10px 12px;
+      margin-bottom: 16px;
+      font-size: 15px;
+    }
+    input:focus {
+      outline: 1px solid var(--cyan);
+    }
+    button {
+      width: 100%;
+      background: var(--cyan);
+      color: var(--black);
+      border: 1px solid var(--cyan);
+      padding: 11px 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    button:hover { filter: brightness(1.08); }
+    button[disabled] { opacity: 0.55; cursor: wait; }
+    .links {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 18px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .note, .error, .ok {
+      margin: 0 0 16px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .error { color: #ff6b6b; }
+    .ok { color: var(--cyan); }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="brand hidden" id="desk-brand">
+      <img src="/static/logo.svg" alt="Meridian Flow Network" width="184" height="84" />
+    </div>
+    <div class="mark hidden" id="portal-mark" aria-hidden="true"><span></span></div>
+    <h1 id="title">Sign in</h1>
+    <p class="lede" id="lede">Email and password</p>
+    <p class="ok hidden" id="ok"></p>
+    <p class="error hidden" id="error"></p>
+    <form id="form" autocomplete="on">
+      <div id="email-block">
+        <label for="email">Work email</label>
+        <input id="email" name="email" type="email" autocomplete="username" required maxlength="200" />
+      </div>
+      <div id="password-block">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required minlength="10" maxlength="72" />
+      </div>
+      <div id="confirm-block" class="hidden">
+        <label for="confirm">Confirm password</label>
+        <input id="confirm" name="confirm" type="password" autocomplete="new-password" minlength="10" maxlength="72" />
+      </div>
+      <button type="submit" id="submit">Sign in</button>
+    </form>
+    <div class="links">
+      <a id="alt" href="#">Forgot password</a>
+      <a id="back" href="#">Back to sign in</a>
+    </div>
+  </main>
+  <script>
+    const path = location.pathname;
+    const desk = path.startsWith("/desk");
+    const mode = path.includes("/reset") ? "reset" : path.includes("/forgot") ? "forgot" : "login";
+    const params = new URLSearchParams(location.search);
+    const next = params.get("next") || (desk ? "/desk" : "/portal/login");
+    const token = params.get("token") || "";
+
+    const $title = document.getElementById("title");
+    const $lede = document.getElementById("lede");
+    const $ok = document.getElementById("ok");
+    const $error = document.getElementById("error");
+    const $form = document.getElementById("form");
+    const $emailBlock = document.getElementById("email-block");
+    const $password = document.getElementById("password");
+    const $confirmBlock = document.getElementById("confirm-block");
+    const $confirm = document.getElementById("confirm");
+    const $submit = document.getElementById("submit");
+    const $alt = document.getElementById("alt");
+    const $back = document.getElementById("back");
+
+    document.getElementById(desk ? "desk-brand" : "portal-mark").classList.remove("hidden");
+    if (!desk) {
+      document.querySelector('link[rel="icon"]').href = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000000'/%3E%3Crect x='6' y='15' width='20' height='2' fill='%2300FFFF'/%3E%3C/svg%3E";
+    }
+
+    if (mode === "login") {
+      $title.textContent = desk ? "Operations desk" : "Introductions";
+      $lede.textContent = desk ? "Operator sign in" : "Sign in to review matches";
+      $submit.textContent = "Sign in";
+      $password.autocomplete = "current-password";
+      $alt.href = desk ? "/desk/forgot" : "/portal/forgot";
+      $alt.textContent = "Forgot password";
+      $back.href = desk ? "/" : "/portal/login";
+      $back.textContent = desk ? "Public site" : "";
+      if (!desk) $back.classList.add("hidden");
+    } else if (mode === "forgot") {
+      $title.textContent = "Forgot password";
+      $lede.textContent = "We will send a reset link if the account exists";
+      $submit.textContent = "Send reset link";
+      document.getElementById("password-block").classList.add("hidden");
+      $password.required = false;
+      $alt.classList.add("hidden");
+      $back.href = desk ? "/desk/login" : "/portal/login";
+      $back.textContent = "Back to sign in";
+    } else {
+      $title.textContent = "Set a new password";
+      $lede.textContent = "Choose a password of at least 10 characters";
+      $submit.textContent = "Update password";
+      $emailBlock.classList.add("hidden");
+      document.getElementById("email").required = false;
+      $password.autocomplete = "new-password";
+      $confirmBlock.classList.remove("hidden");
+      $confirm.required = true;
+      $alt.classList.add("hidden");
+      $back.href = desk ? "/desk/login" : "/portal/login";
+      $back.textContent = "Back to sign in";
+    }
+
+    if (params.get("reset") === "1") {
+      $ok.textContent = "Password updated. Sign in with your new password.";
+      $ok.classList.remove("hidden");
+    }
+
+    function showError(message) {
+      $error.textContent = message;
+      $error.classList.toggle("hidden", !message);
+    }
+
+    $form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      showError("");
+      $ok.classList.add("hidden");
+      $submit.disabled = true;
+      try {
+        if (mode === "login") {
+          const response = await fetch(desk ? "/api/auth/desk/login" : "/api/auth/portal/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: document.getElementById("email").value,
+              password: $password.value,
+              next,
+            }),
+          });
+          const body = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error(body.detail || "Sign in failed");
+          location.href = body.next || next;
+          return;
+        }
+        if (mode === "forgot") {
+          const response = await fetch("/api/auth/forgot", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: document.getElementById("email").value,
+              scope: desk ? "desk" : "portal",
+            }),
+          });
+          const body = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error(body.detail || "Request failed");
+          $ok.textContent = "If an account exists, a reset link is on its way.";
+          $ok.classList.remove("hidden");
+          $form.classList.add("hidden");
+          return;
+        }
+        if ($password.value !== $confirm.value) throw new Error("Passwords do not match");
+        const response = await fetch("/api/auth/reset", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token, password: $password.value }),
+        });
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(body.detail || "Reset failed");
+        location.href = (desk ? "/desk/login" : "/portal/login") + "?reset=1";
+      } catch (err) {
+        showError(err.message || "Request failed");
+      } finally {
+        $submit.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

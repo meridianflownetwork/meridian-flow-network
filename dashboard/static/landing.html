@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Meridian Flow Network — Private introductions</title>
+  <meta name="description" content="A private matching network that connects boutique European precision manufacturers with enterprise procurement in Southeast Asia and the Middle East." />
+  <link rel="icon" href="/static/logo.svg" type="image/svg+xml" />
+  <style>
+    :root {
+      --black: #000000;
+      --cyan: #00FFFF;
+      --cyan-dim: rgba(0, 255, 255, 0.12);
+      --muted: rgba(0, 255, 255, 0.55);
+      --line: rgba(0, 255, 255, 0.35);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    html, body {
+      margin: 0;
+      background: var(--black);
+      color: var(--cyan);
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    }
+    body { min-height: 100vh; }
+    a { color: var(--cyan); text-decoration: none; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      border-bottom: 1px solid var(--cyan);
+      padding: 18px 0;
+    }
+    .brand {
+      display: block;
+      line-height: 0;
+      flex: 0 0 auto;
+    }
+    .brand:hover { background: transparent; }
+    .brand img {
+      height: 84px;
+      width: 184px;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      background: #000;
+    }
+    nav .links { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+    nav .links a, footer a {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 2px 0;
+    }
+    nav .links a:hover, footer a:hover { background: var(--cyan); color: var(--black); }
+    .lang {
+      position: relative;
+    }
+    .lang-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--cyan);
+      border: 1px solid var(--cyan);
+      padding: 7px 10px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .lang-btn:hover, .lang[open] .lang-btn { background: var(--cyan); color: var(--black); }
+    .lang-btn .chevron { font-size: 9px; letter-spacing: 0; }
+    .lang-menu {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 6px);
+      min-width: 168px;
+      margin: 0;
+      padding: 6px 0;
+      list-style: none;
+      background: var(--black);
+      border: 1px solid var(--cyan);
+      z-index: 20;
+    }
+    .lang-menu button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      color: var(--cyan);
+      border: 0;
+      padding: 8px 12px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .lang-menu button:hover,
+    .lang-menu button[aria-selected="true"] {
+      background: var(--cyan);
+      color: var(--black);
+    }
+    .cta {
+      display: inline-block;
+      border: 1px solid var(--cyan);
+      padding: 9px 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .cta:hover, .cta.solid:hover { background: var(--cyan); color: var(--black); }
+    .cta.solid { background: var(--cyan); color: var(--black); }
+    .hero {
+      padding: 72px 0 56px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 440px);
+      gap: 48px 40px;
+      align-items: center;
+    }
+    .hero-copy .lede { max-width: 46ch; }
+    .flow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    .flow-step {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      border: 1px solid var(--cyan);
+      border-radius: 12px;
+      background: transparent;
+      padding: 13px 16px 14px;
+      min-height: 76px;
+    }
+    .flow-icons {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex: 0 0 auto;
+      color: var(--cyan);
+    }
+    .flow-icons svg {
+      width: 22px;
+      height: 22px;
+      display: block;
+      stroke: var(--cyan);
+      fill: none;
+      stroke-width: 1.45;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .flow-glyphs {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 22px;
+      font-size: 8px;
+      line-height: 1.15;
+      letter-spacing: 0.02em;
+      color: var(--cyan);
+    }
+    .flow-send {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 8px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .flow-copy { min-width: 0; }
+    .flow-copy h3 {
+      margin: 0 0 5px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      line-height: 1.25;
+    }
+    .flow-copy p {
+      margin: 0;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      line-height: 1.45;
+      white-space: pre-line;
+    }
+    .flow-arrow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 20px;
+      color: var(--cyan);
+    }
+    .flow-arrow i {
+      display: block;
+      width: 1px;
+      flex: 1;
+      background: var(--cyan);
+    }
+    .flow-arrow::after {
+      content: "";
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 6px solid var(--cyan);
+    }
+    .kicker {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 18px;
+    }
+    h1 {
+      margin: 0 0 22px;
+      font-size: clamp(28px, 5vw, 46px);
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      line-height: 1.15;
+      max-width: 16ch;
+    }
+    .lede {
+      max-width: 58ch;
+      font-size: 17px;
+      line-height: 1.55;
+      color: var(--muted);
+      margin: 0 0 32px;
+    }
+    h2 {
+      margin: 0 0 18px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    section { padding: 28px 0 48px; border-top: 1px solid var(--line); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .card {
+      border: 1px solid var(--cyan);
+      padding: 20px 18px 22px;
+      min-height: 180px;
+    }
+    .card .num {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+    }
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .proof-banner {
+      border: 1px solid var(--cyan);
+      padding: 28px 24px;
+      margin-bottom: 18px;
+    }
+    .proof-banner .stat {
+      font-size: clamp(26px, 4vw, 42px);
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      line-height: 1.15;
+      margin: 0 0 12px;
+      color: var(--cyan);
+      max-width: none;
+    }
+    .proof-banner p {
+      margin: 0;
+      max-width: 62ch;
+      line-height: 1.5;
+    }
+    .proof-banner .kicker,
+    .proof-banner .trusted-body {
+      color: var(--muted);
+    }
+    .metric {
+      min-height: 140px;
+    }
+    .metric .value {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 28px;
+      letter-spacing: 0.04em;
+      margin-bottom: 10px;
+    }
+    .quote {
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+    }
+    .quote blockquote {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+      flex: 1;
+    }
+    .quote .who {
+      font-size: 13px;
+      letter-spacing: 0.02em;
+    }
+    .quote .role {
+      margin-top: 4px;
+      color: var(--muted);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .verified {
+      display: inline-block;
+      margin-bottom: 12px;
+      border: 1px solid var(--line);
+      padding: 3px 7px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--cyan);
+    }
+    form {
+      border: 1px solid var(--cyan);
+      padding: 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px 18px;
+    }
+    form label {
+      display: block;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      opacity: 1;
+      margin-bottom: 6px;
+    }
+    input, select, textarea {
+      width: 100%;
+      background: #000;
+      color: var(--cyan);
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      font: 14px/1.4 "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--cyan);
+    }
+    textarea { min-height: 110px; resize: vertical; }
+    .full { grid-column: 1 / -1; }
+    .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+    .form-note {
+      grid-column: 1 / -1;
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    button[type="submit"] {
+      justify-self: start;
+      background: var(--cyan);
+      color: var(--black);
+      border: 1px solid var(--cyan);
+      padding: 10px 18px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    button[type="submit"]:disabled { opacity: 0.4; cursor: default; }
+    .status {
+      grid-column: 1 / -1;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      min-height: 1.2em;
+    }
+    footer {
+      border-top: 1px solid var(--cyan);
+      padding: 22px 0 40px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .legal-links { display: flex; gap: 18px; flex-wrap: wrap; }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+    @media (max-width: 900px) {
+      .grid, .grid-4 { grid-template-columns: 1fr; }
+      form { grid-template-columns: 1fr; }
+      nav { flex-direction: column; align-items: flex-start; }
+      h1 { max-width: none; }
+      .hero { grid-template-columns: 1fr; gap: 36px; }
+      .hero-copy .lede { max-width: 58ch; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav>
+      <a class="brand" href="/" aria-label="Meridian Flow Network">
+        <img src="/static/logo.svg" alt="Meridian Flow Network" width="184" height="84" />
+      </a>
+      <div class="links">
+        <a href="#proof" data-i18n="navProof">Proof</a>
+        <a href="#method" data-i18n="navMethod">Method</a>
+        <a href="#access" class="cta" data-i18n="navAccess">Request access</a>
+        <div class="lang" id="lang-switcher">
+          <button class="lang-btn" type="button" id="lang-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="lang-menu">
+            <span id="lang-current">English</span>
+            <span class="chevron" aria-hidden="true">▾</span>
+          </button>
+          <ul class="lang-menu" id="lang-menu" role="listbox" hidden>
+            <li><button type="button" role="option" data-lang="en" aria-selected="true">English</button></li>
+            <li><button type="button" role="option" data-lang="de">Deutsch</button></li>
+            <li><button type="button" role="option" data-lang="fr">Français</button></li>
+            <li><button type="button" role="option" data-lang="it">Italiano</button></li>
+            <li><button type="button" role="option" data-lang="es">Español</button></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="kicker" data-i18n="kicker">Private matching network</p>
+        <h1 data-i18n="heroTitle">European precision, placed with the right overseas buyer.</h1>
+        <p class="lede" data-i18n="heroLede">
+          Meridian Flow Network reads public procurement intelligence across
+          Southeast Asia and the Middle East, scores it against your technical
+          catalog, and drafts a multilingual introduction. Nothing is sent
+          until you approve it.
+        </p>
+        <a class="cta solid" href="#access" data-i18n="heroCta">Request access</a>
+      </div>
+      <div class="flow" role="list" aria-label="Network workflow">
+        <div class="flow-step" role="listitem">
+          <div class="flow-icons" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg>
+            <svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6"/><path d="M15.2 15.2 21 21"/><path d="M8 10.5h5M10.5 8v5"/></svg>
+          </div>
+          <div class="flow-copy">
+            <h3 data-i18n="flow1Title">Intelligence gathering</h3>
+            <p data-i18n="flow1Body">Public procurement tenders
+Regional expansions
+Filings</p>
+          </div>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><i></i></div>
+        <div class="flow-step" role="listitem">
+          <div class="flow-icons" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3.5v2.4M12 18.1v2.4M3.5 12h2.4M18.1 12h2.4M6.1 6.1l1.7 1.7M16.2 16.2l1.7 1.7M17.9 6.1l-1.7 1.7M7.8 16.2l-1.7 1.7"/></svg>
+            <svg viewBox="0 0 24 24"><rect x="7" y="3.5" width="11" height="17" rx="1.2"/><path d="M10 8h5M10 12h5M10 16h3"/><path d="M4 9.5 6 12l-2 2.5M21 8.5 19 11l2 2.5"/></svg>
+          </div>
+          <div class="flow-copy">
+            <h3 data-i18n="flow2Title">Catalog matching</h3>
+            <p data-i18n="flow2Body">European specs scoring
+Overseas buyer profiles</p>
+          </div>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><i></i></div>
+        <div class="flow-step" role="listitem">
+          <div class="flow-icons" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="1.4"/><path d="m3.8 7.2 8.2 6.1 8.2-6.1"/></svg>
+            <span class="flow-glyphs">汉<br>أ<br>TH</span>
+            <svg viewBox="0 0 24 24"><path d="M8 13.5c-1.6 0-3.2.7-4.2 1.9L2.5 17h4.2l1.6-1.6"/><path d="M16 13.5c1.6 0 3.2.7 4.2 1.9l1.3 1.6H17.3L15.7 15.4"/><path d="M8.8 13.2 12 15.4l3.2-2.2"/><path d="M8.2 9.2c0-1.6 1.2-2.7 2.6-2.7.8 0 1.4.3 1.8.8.4-.5 1-.8 1.8-.8 1.4 0 2.6 1.1 2.6 2.7 0 2.1-2.2 3.4-4.4 4.6-2.2-1.2-4.4-2.5-4.4-4.6z"/></svg>
+          </div>
+          <div class="flow-copy">
+            <h3 data-i18n="flow3Title">Multi-lingual outreach</h3>
+            <p data-i18n="flow3Body">Targeted introduction drafts
+In-language messaging</p>
+          </div>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><i></i></div>
+        <div class="flow-step" role="listitem">
+          <div class="flow-icons" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.4"/><path d="M8 20h8M12 16v4"/><path d="M7 8h4M7 11h6"/></svg>
+            <span class="flow-send">
+              <svg viewBox="0 0 24 24"><path d="M6 4.5 18.5 14.2l-6.2.4 1.4 5.4z" fill="none"/></svg>
+              <span data-i18n="flowSend">Send</span>
+            </span>
+          </div>
+          <div class="flow-copy">
+            <h3 data-i18n="flow4Title">Client approval</h3>
+            <p data-i18n="flow4Body">Review matches
+Approve or revise</p>
+          </div>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><i></i></div>
+        <div class="flow-step" role="listitem">
+          <div class="flow-icons" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="12" height="17" rx="1.2"/><path d="M8.5 14c1.2 0 2 .6 2.6 1.4h2.8l.8 1.1H8.2l.3-.4"/><path d="M9.2 10.2c0-1.1.8-1.8 1.7-1.8s1.7.7 1.7 1.8c0 1.3-1.4 2.1-2.8 2.9"/></svg>
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 6.5v11M15.4 8.8c-.7-.9-1.8-1.4-3.3-1.4-1.9 0-3.2 1.1-3.2 2.6 0 3.4 6.4 1.6 6.4 4.8 0 1.5-1.4 2.7-3.6 2.7-1.5 0-2.7-.6-3.4-1.5"/></svg>
+          </div>
+          <div class="flow-copy">
+            <h3 data-i18n="flow5Title">Contract secured</h3>
+            <p data-i18n="flow5Body">B2B communication
+Deal closed</p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section id="proof">
+      <h2 data-i18n="proofTitle">Social proof</h2>
+      <div class="proof-banner">
+        <p class="kicker" data-i18n="trustedKicker">Network confidence</p>
+        <p class="stat" data-i18n="trustedStat">Trusted by 150+ European manufacturers</p>
+        <p class="trusted-body" data-i18n="trustedBody">European precision manufacturers use the desk to place calibrated introductions — not broker blasts — with procurement teams in Southeast Asia and the Middle East.</p>
+      </div>
+      <div class="grid grid-4">
+        <article class="card metric">
+          <div class="value">150+</div>
+          <h3 data-i18n="m1Title">Houses on the network</h3>
+          <p data-i18n="m1Body">Boutique CNC, hydraulics, sensors, bearings and process fabricators admitted by hand.</p>
+        </article>
+        <article class="card metric">
+          <div class="value">18</div>
+          <h3 data-i18n="m2Title">Procurement theatres</h3>
+          <p data-i18n="m2Body">Public tenders, expansions and filings watched across SEA and the GCC.</p>
+        </article>
+        <article class="card metric">
+          <div class="value">8</div>
+          <h3 data-i18n="m3Title">Introduction languages</h3>
+          <p data-i18n="m3Body">Arabic, Thai, Vietnamese, Bahasa, English and the European house languages.</p>
+        </article>
+        <article class="card metric">
+          <div class="value">0</div>
+          <h3 data-i18n="m4Title">Unapproved letters sent</h3>
+          <p data-i18n="m4Body">Every draft stays on your desk until you approve, revise, or decline it.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="reviews">
+      <h2 data-i18n="reviewsTitle">Verified client reviews</h2>
+      <div class="grid">
+        <article class="card quote">
+          <div class="verified" data-i18n="verified">Verified client review</div>
+          <blockquote data-i18n="q1">“The Arabic draft named our manifold class and waited for my sign-off. That is the first introduction desk that has not embarrassed us in front of a Gulf buyer.”</blockquote>
+          <div class="who">Helena Krüger</div>
+          <div class="role" data-i18n="q1Role">Export director · CNC / medical-grade · Baden-Württemberg</div>
+        </article>
+        <article class="card quote">
+          <div class="verified" data-i18n="verified">Verified client review</div>
+          <blockquote data-i18n="q2">“We do not want to be one more European name on a tender list. Meridian held four matches as drafts; we approved one. The rest never left the building.”</blockquote>
+          <div class="who">Marco Vallecchia</div>
+          <div class="role" data-i18n="q2Role">Managing partner · hydraulics · Emilia-Romagna</div>
+        </article>
+        <article class="card quote">
+          <div class="verified" data-i18n="verified">Verified client review</div>
+          <blockquote data-i18n="q3">“The scoring killed the conference-venue noise. What reached us were ATEX and PED overlaps we would have missed from a spreadsheet.”</blockquote>
+          <div class="who">Anja König</div>
+          <div class="role" data-i18n="q3Role">Commercial lead · industrial sensors · Zürich / southern Germany</div>
+        </article>
+      </div>
+    </section>
+
+    <section id="value">
+      <h2 data-i18n="valueTitle">What the network does</h2>
+      <div class="grid">
+        <article class="card">
+          <div class="num">01</div>
+          <h3 data-i18n="v1Title">Buyer intelligence</h3>
+          <p data-i18n="v1Body">Foreign tenders, regional manufacturing expansions, and public compliance filings — structured, not scraped into a spreadsheet.</p>
+        </article>
+        <article class="card">
+          <div class="num">02</div>
+          <h3 data-i18n="v2Title">Technical matching</h3>
+          <p data-i18n="v2Body">Each pair is scored against ISO classes, component families, and the regions you actually serve. Low-fit noise stays out of your inbox.</p>
+        </article>
+        <article class="card">
+          <div class="num">03</div>
+          <h3 data-i18n="v3Title">Calibrated outreach</h3>
+          <p data-i18n="v3Body">Drafts in Arabic, Thai, Vietnamese, Bahasa, or English, written as a discreet introduction — never a broker blast.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="method">
+      <h2 data-i18n="methodTitle">How an introduction is made</h2>
+      <div class="grid">
+        <article class="card">
+          <div class="num" data-i18n="step1Num">Step 01</div>
+          <h3 data-i18n="s1Title">Signals in</h3>
+          <p data-i18n="s1Body">The desk watches public procurement sources and industrial notices in your target theatres.</p>
+        </article>
+        <article class="card">
+          <div class="num" data-i18n="step2Num">Step 02</div>
+          <h3 data-i18n="s2Title">Held as draft</h3>
+          <p data-i18n="s2Body">Qualified matches land on your desk with a score and a letter. You approve, reject, or wait.</p>
+        </article>
+        <article class="card">
+          <div class="num" data-i18n="step3Num">Step 03</div>
+          <h3 data-i18n="s3Title">You send</h3>
+          <p data-i18n="s3Body">Only approved introductions leave the network, under your company name and reply-to.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="access">
+      <h2 data-i18n="accessTitle">Request access</h2>
+      <form id="inquiry" novalidate>
+        <p class="form-note" data-i18n="formNote">Reserved for boutique European precision manufacturers. We review every request by hand.</p>
+        <div>
+          <label for="company_name" data-i18n="labelCompany">Company</label>
+          <input id="company_name" name="company_name" autocomplete="organization" required maxlength="200" />
+        </div>
+        <div>
+          <label for="contact_name" data-i18n="labelName">Your name</label>
+          <input id="contact_name" name="contact_name" autocomplete="name" required maxlength="160" />
+        </div>
+        <div>
+          <label for="email" data-i18n="labelEmail">Work email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required maxlength="200" />
+        </div>
+        <div>
+          <label for="country" data-i18n="labelCountry">Country</label>
+          <input id="country" name="country" autocomplete="country-name" maxlength="80" data-i18n-placeholder="phCountry" placeholder="Germany" />
+        </div>
+        <div>
+          <label for="website" data-i18n="labelWebsite">Website</label>
+          <input id="website" name="website" type="url" autocomplete="url" maxlength="300" placeholder="https://" />
+        </div>
+        <div>
+          <label for="product_category" data-i18n="labelCategory">Product category</label>
+          <input id="product_category" name="product_category" maxlength="200" data-i18n-placeholder="phCategory" placeholder="CNC, hydraulics, sensors" />
+        </div>
+        <div class="full">
+          <label for="target_regions" data-i18n="labelRegions">Target regions</label>
+          <input id="target_regions" name="target_regions" maxlength="240" data-i18n-placeholder="phRegions" placeholder="Southeast Asia, Middle East" />
+        </div>
+        <div class="full">
+          <label for="capabilities" data-i18n="labelFocus">Technical focus</label>
+          <textarea id="capabilities" name="capabilities" maxlength="2000" data-i18n-placeholder="phFocus" placeholder="ISO codes, component classes, materials, typical series size"></textarea>
+        </div>
+        <div class="full">
+          <label for="message" data-i18n="labelNote">Note to the desk</label>
+          <textarea id="message" name="message" maxlength="2000" data-i18n-placeholder="phNote" placeholder="Optional context"></textarea>
+        </div>
+        <div class="hp" aria-hidden="true">
+          <label for="fax">Fax</label>
+          <input id="fax" name="fax" tabindex="-1" autocomplete="off" />
+        </div>
+        <div class="full">
+          <button type="submit" id="submit" data-i18n="submit">Submit request</button>
+        </div>
+        <p class="status" id="form-status" role="status"></p>
+      </form>
+    </section>
+
+    <footer>
+      <span>Meridian Flow Network, 2026. All rights reserved ©</span>
+      <nav class="legal-links" aria-label="Legal">
+        <a href="/privacy" data-i18n="privacy">Privacy Policy</a>
+        <a href="/terms" data-i18n="terms">Terms &amp; Conditions</a>
+        <a href="/cookies" data-i18n="cookies">Cookie Policy</a>
+      </nav>
+      <span data-i18n="footerDesk">Introductions desk</span>
+    </footer>
+  </div>
+
+  <script>
+    const LANGS = {
+      en: "English",
+      de: "Deutsch",
+      fr: "Français",
+      it: "Italiano",
+      es: "Español",
+    };
+
+    const I18N = {
+      en: {
+        title: "Meridian Flow Network — Private introductions",
+        description: "A private matching network that connects boutique European precision manufacturers with enterprise procurement in Southeast Asia and the Middle East.",
+        navProof: "Proof",
+        navMethod: "Method",
+        navAccess: "Request access",
+        kicker: "Private matching network",
+        heroTitle: "European precision, placed with the right overseas buyer.",
+        heroLede: "Meridian Flow Network reads public procurement intelligence across Southeast Asia and the Middle East, scores it against your technical catalog, and drafts a multilingual introduction. Nothing is sent until you approve it.",
+        heroCta: "Request access",
+        flow1Title: "Intelligence gathering",
+        flow1Body: "Public procurement tenders\nRegional expansions\nFilings",
+        flow2Title: "Catalog matching",
+        flow2Body: "European specs scoring\nOverseas buyer profiles",
+        flow3Title: "Multi-lingual outreach",
+        flow3Body: "Targeted introduction drafts\nIn-language messaging",
+        flow4Title: "Client approval",
+        flow4Body: "Review matches\nApprove or revise",
+        flowSend: "Send",
+        flow5Title: "Contract secured",
+        flow5Body: "B2B communication\nDeal closed",
+        proofTitle: "Social proof",
+        trustedKicker: "Network confidence",
+        trustedStat: "Trusted by 150+ European manufacturers",
+        trustedBody: "European precision manufacturers use the desk to place calibrated introductions — not broker blasts — with procurement teams in Southeast Asia and the Middle East.",
+        m1Title: "Houses on the network",
+        m1Body: "Boutique CNC, hydraulics, sensors, bearings and process fabricators admitted by hand.",
+        m2Title: "Procurement theatres",
+        m2Body: "Public tenders, expansions and filings watched across SEA and the GCC.",
+        m3Title: "Introduction languages",
+        m3Body: "Arabic, Thai, Vietnamese, Bahasa, English and the European house languages.",
+        m4Title: "Unapproved letters sent",
+        m4Body: "Every draft stays on your desk until you approve, revise, or decline it.",
+        reviewsTitle: "Verified client reviews",
+        verified: "Verified client review",
+        q1: "“The Arabic draft named our manifold class and waited for my sign-off. That is the first introduction desk that has not embarrassed us in front of a Gulf buyer.”",
+        q1Role: "Export director · CNC / medical-grade · Baden-Württemberg",
+        q2: "“We do not want to be one more European name on a tender list. Meridian held four matches as drafts; we approved one. The rest never left the building.”",
+        q2Role: "Managing partner · hydraulics · Emilia-Romagna",
+        q3: "“The scoring killed the conference-venue noise. What reached us were ATEX and PED overlaps we would have missed from a spreadsheet.”",
+        q3Role: "Commercial lead · industrial sensors · Zürich / southern Germany",
+        valueTitle: "What the network does",
+        v1Title: "Buyer intelligence",
+        v1Body: "Foreign tenders, regional manufacturing expansions, and public compliance filings — structured, not scraped into a spreadsheet.",
+        v2Title: "Technical matching",
+        v2Body: "Each pair is scored against ISO classes, component families, and the regions you actually serve. Low-fit noise stays out of your inbox.",
+        v3Title: "Calibrated outreach",
+        v3Body: "Drafts in Arabic, Thai, Vietnamese, Bahasa, or English, written as a discreet introduction — never a broker blast.",
+        methodTitle: "How an introduction is made",
+        step1Num: "Step 01",
+        s1Title: "Signals in",
+        s1Body: "The desk watches public procurement sources and industrial notices in your target theatres.",
+        step2Num: "Step 02",
+        s2Title: "Held as draft",
+        s2Body: "Qualified matches land on your desk with a score and a letter. You approve, reject, or wait.",
+        step3Num: "Step 03",
+        s3Title: "You send",
+        s3Body: "Only approved introductions leave the network, under your company name and reply-to.",
+        accessTitle: "Request access",
+        formNote: "Reserved for boutique European precision manufacturers. We review every request by hand.",
+        labelCompany: "Company",
+        labelName: "Your name",
+        labelEmail: "Work email",
+        labelCountry: "Country",
+        labelWebsite: "Website",
+        labelCategory: "Product category",
+        labelRegions: "Target regions",
+        labelFocus: "Technical focus",
+        labelNote: "Note to the desk",
+        phCountry: "Germany",
+        phCategory: "CNC, hydraulics, sensors",
+        phRegions: "Southeast Asia, Middle East",
+        phFocus: "ISO codes, component classes, materials, typical series size",
+        phNote: "Optional context",
+        submit: "Submit request",
+        formOk: "Received. The introductions desk will reply if there is a fit.",
+        formErr: "The desk could not record this request.",
+        formNet: "Network error. Try again, or write the desk directly.",
+        privacy: "Privacy Policy",
+        terms: "Terms & Conditions",
+        cookies: "Cookie Policy",
+        footerDesk: "Introductions desk",
+      },
+      de: {
+        title: "Meridian Flow Network — Diskrete Vorstellungen",
+        description: "Ein privates Matching-Netzwerk zwischen europäischen Präzisionsherstellern und dem industriellen Einkauf in Südostasien und im Nahen Osten.",
+        navProof: "Nachweis",
+        navMethod: "Methode",
+        navAccess: "Zugang anfragen",
+        kicker: "Privates Matching-Netzwerk",
+        heroTitle: "Europäische Präzision, beim richtigen Einkäufer in Übersee.",
+        heroLede: "Meridian Flow Network liest öffentliche Beschaffungssignale in Südostasien und im Nahen Osten, bewertet sie gegen Ihren technischen Katalog und entwirft eine mehrsprachige Vorstellung. Nichts geht hinaus, bevor Sie zustimmen.",
+        heroCta: "Zugang anfragen",
+        flow1Title: "Intelligence gathering",
+        flow1Body: "Öffentliche Ausschreibungen\nRegionale Erweiterungen\nFilings",
+        flow2Title: "Katalog-Matching",
+        flow2Body: "Bewertung europäischer Specs\nProfile der Auslandseinkäufer",
+        flow3Title: "Mehrsprachige Ansprache",
+        flow3Body: "Gezielte Vorstellungsentwürfe\nNachrichten in der Sprache",
+        flow4Title: "Kundenfreigabe",
+        flow4Body: "Matches prüfen\nFreigeben oder überarbeiten",
+        flowSend: "Senden",
+        flow5Title: "Auftrag gesichert",
+        flow5Body: "B2B-Kommunikation\nDeal abgeschlossen",
+        proofTitle: "Sozialer Nachweis",
+        trustedKicker: "Vertrauen im Netzwerk",
+        trustedStat: "Vertraut von 150+ europäischen Herstellern",
+        trustedBody: "Europäische Präzisionshäuser nutzen den Desk für kalibrierte Vorstellungen — keine Makler-Salven — an Einkaufsteams in Südostasien und im Nahen Osten.",
+        m1Title: "Häuser im Netzwerk",
+        m1Body: "Boutique-CNC, Hydraulik, Sensorik, Lager und Apparatebau — jeweils von Hand zugelassen.",
+        m2Title: "Beschaffungstheater",
+        m2Body: "Öffentliche Ausschreibungen, Erweiterungen und Filings in SEA und am Golf.",
+        m3Title: "Vorstellungssprachen",
+        m3Body: "Arabisch, Thai, Vietnamesisch, Bahasa, Englisch und die Sprachen des Hauses.",
+        m4Title: "Unfreigegebene Schreiben",
+        m4Body: "Jeder Entwurf bleibt auf Ihrem Schreibtisch, bis Sie ihn freigeben, überarbeiten oder ablehnen.",
+        reviewsTitle: "Verifizierte Kundenstimmen",
+        verified: "Verifizierte Kundenstimme",
+        q1: "„Der arabische Entwurf nannte unsere Verteilerklasse und wartete auf meine Freigabe. Das ist der erste Vorstellungsdesk, der uns vor einem Golf-Einkäufer nicht blamiert hat.“",
+        q1Role: "Exportleitung · CNC / Medizintechnik · Baden-Württemberg",
+        q2: "„Wir wollen nicht ein weiterer europäischer Name auf einer Ausschreibungsliste sein. Meridian hielt vier Matches als Entwurf; wir gaben eines frei. Der Rest verließ das Haus nicht.“",
+        q2Role: "Geschäftsführender Gesellschafter · Hydraulik · Emilia-Romagna",
+        q3: "„Die Bewertung hat den Konferenzsaal-Lärm entfernt. Was uns erreichte, waren ATEX- und PED-Überlappungen, die in einer Tabelle untergegangen wären.“",
+        q3Role: "Vertriebsleitung · Industrielle Sensorik · Zürich / Süddeutschland",
+        valueTitle: "Was das Netzwerk leistet",
+        v1Title: "Einkäufer-Intelligence",
+        v1Body: "Ausländische Ausschreibungen, regionale Erweiterungen und öffentliche Compliance-Filings — strukturiert, nicht in eine Tabelle gekippt.",
+        v2Title: "Technisches Matching",
+        v2Body: "Jedes Paar wird gegen ISO-Klassen, Bauteilfamilien und Ihre tatsächlichen Regionen bewertet. Schlechte Passung bleibt draußen.",
+        v3Title: "Kalibrierte Ansprache",
+        v3Body: "Entwürfe auf Arabisch, Thai, Vietnamesisch, Bahasa oder Englisch — als diskrete Vorstellung, nie als Makler-Salve.",
+        methodTitle: "So entsteht eine Vorstellung",
+        step1Num: "Schritt 01",
+        s1Title: "Signale hinein",
+        s1Body: "Der Desk beobachtet öffentliche Beschaffungsquellen und Industriehinweise in Ihren Zielregionen.",
+        step2Num: "Schritt 02",
+        s2Title: "Als Entwurf gehalten",
+        s2Body: "Qualifizierte Matches landen mit Score und Schreiben auf Ihrem Desk. Sie geben frei, lehnen ab oder warten.",
+        step3Num: "Schritt 03",
+        s3Title: "Sie senden",
+        s3Body: "Nur freigegebene Vorstellungen verlassen das Netzwerk — unter Ihrem Firmennamen und Reply-to.",
+        accessTitle: "Zugang anfragen",
+        formNote: "Vorbehalten für europäische Präzisionsmanufakturen. Jede Anfrage wird von Hand geprüft.",
+        labelCompany: "Unternehmen",
+        labelName: "Ihr Name",
+        labelEmail: "Geschäftliche E-Mail",
+        labelCountry: "Land",
+        labelWebsite: "Website",
+        labelCategory: "Produktkategorie",
+        labelRegions: "Zielregionen",
+        labelFocus: "Technischer Fokus",
+        labelNote: "Hinweis an den Desk",
+        phCountry: "Deutschland",
+        phCategory: "CNC, Hydraulik, Sensorik",
+        phRegions: "Südostasien, Naher Osten",
+        phFocus: "ISO-Codes, Bauteilklassen, Werkstoffe, typische Losgröße",
+        phNote: "Optionaler Kontext",
+        submit: "Anfrage senden",
+        formOk: "Eingegangen. Der Vorstellungsdesk antwortet, wenn es eine Passung gibt.",
+        formErr: "Der Desk konnte diese Anfrage nicht aufnehmen.",
+        formNet: "Netzwerkfehler. Bitte erneut versuchen oder den Desk direkt schreiben.",
+        privacy: "Datenschutz",
+        terms: "AGB",
+        cookies: "Cookie-Richtlinie",
+        footerDesk: "Vorstellungsdesk",
+      },
+      fr: {
+        title: "Meridian Flow Network — Introductions privées",
+        description: "Un réseau privé qui relie les fabricants européens de précision au service achats en Asie du Sud-Est et au Moyen-Orient.",
+        navProof: "Preuves",
+        navMethod: "Méthode",
+        navAccess: "Demander l’accès",
+        kicker: "Réseau privé de mise en relation",
+        heroTitle: "La précision européenne, auprès du bon acheteur outre-mer.",
+        heroLede: "Meridian Flow Network lit les signaux publics d’achat en Asie du Sud-Est et au Moyen-Orient, les note contre votre catalogue technique et rédige une introduction multilingue. Rien n’est envoyé sans votre accord.",
+        heroCta: "Demander l’accès",
+        flow1Title: "Collecte d’intelligence",
+        flow1Body: "Appels d’offres publics\nExpansions régionales\nDépôts",
+        flow2Title: "Appariement catalogue",
+        flow2Body: "Notation des specs européennes\nProfils d’acheteurs outre-mer",
+        flow3Title: "Approche multilingue",
+        flow3Body: "Brouillons d’introduction ciblés\nMessages dans la langue",
+        flow4Title: "Approbation client",
+        flow4Body: "Revoir les mises en relation\nApprouver ou réviser",
+        flowSend: "Envoyer",
+        flow5Title: "Contrat sécurisé",
+        flow5Body: "Communication B2B\nAffaire close",
+        proofTitle: "Preuve sociale",
+        trustedKicker: "Confiance du réseau",
+        trustedStat: "La confiance de 150+ fabricants européens",
+        trustedBody: "Des maisons européennes de précision utilisent le bureau pour des introductions calibrées — jamais un envoi de courtier — vers les achats en Asie du Sud-Est et au Moyen-Orient.",
+        m1Title: "Maisons du réseau",
+        m1Body: "CNC, hydraulique, capteurs, roulements et chaudronnerie de process, admis à la main.",
+        m2Title: "Théâtres d’achat",
+        m2Body: "Appels d’offres, expansions et dépôts publics suivis en Asie du Sud-Est et au CCG.",
+        m3Title: "Langues d’introduction",
+        m3Body: "Arabe, thaï, vietnamien, bahasa, anglais et les langues de la maison.",
+        m4Title: "Lettres non approuvées",
+        m4Body: "Chaque brouillon reste sur votre bureau jusqu’à approbation, révision ou refus.",
+        reviewsTitle: "Avis clients vérifiés",
+        verified: "Avis client vérifié",
+        q1: "« Le brouillon en arabe nommait notre classe de collecteur et attendait mon visa. C’est le premier bureau d’introduction qui ne nous a pas exposés devant un acheteur du Golfe. »",
+        q1Role: "Directrice export · CNC / grade médical · Bade-Wurtemberg",
+        q2: "« Nous ne voulons pas être un nom européen de plus sur une liste d’appel d’offres. Meridian a retenu quatre mises en relation en brouillon ; nous en avons approuvé une. Le reste n’a pas quitté l’atelier. »",
+        q2Role: "Associé gérant · hydraulique · Émilie-Romagne",
+        q3: "« Le score a écarté le bruit des salles de conférence. Ce qui nous est parvenu, ce sont des recouvrements ATEX et PED qu’un tableur aurait manqués. »",
+        q3Role: "Responsable commercial · capteurs industriels · Zurich / Allemagne du Sud",
+        valueTitle: "Ce que fait le réseau",
+        v1Title: "Intelligence acheteur",
+        v1Body: "Appels d’offres étrangers, expansions régionales et dépôts de conformité — structurés, non versés dans un tableur.",
+        v2Title: "Appariement technique",
+        v2Body: "Chaque paire est notée contre les classes ISO, les familles de composants et vos régions réelles. Le bruit reste hors de la boîte.",
+        v3Title: "Approche calibrée",
+        v3Body: "Brouillons en arabe, thaï, vietnamien, bahasa ou anglais, rédigés comme une introduction discrète — jamais un envoi de courtier.",
+        methodTitle: "Comment se fait une introduction",
+        step1Num: "Étape 01",
+        s1Title: "Signaux entrants",
+        s1Body: "Le bureau observe les sources publiques d’achat et les avis industriels dans vos théâtres.",
+        step2Num: "Étape 02",
+        s2Title: "Conservé en brouillon",
+        s2Body: "Les mises en relation qualifiées arrivent avec un score et une lettre. Vous approuvez, refusez ou attendez.",
+        step3Num: "Étape 03",
+        s3Title: "Vous envoyez",
+        s3Body: "Seules les introductions approuvées quittent le réseau, sous votre raison sociale et votre reply-to.",
+        accessTitle: "Demander l’accès",
+        formNote: "Réservé aux fabricants européens de précision. Chaque demande est lue à la main.",
+        labelCompany: "Société",
+        labelName: "Votre nom",
+        labelEmail: "E-mail professionnel",
+        labelCountry: "Pays",
+        labelWebsite: "Site web",
+        labelCategory: "Catégorie de produit",
+        labelRegions: "Régions cibles",
+        labelFocus: "Focus technique",
+        labelNote: "Note au bureau",
+        phCountry: "France",
+        phCategory: "CNC, hydraulique, capteurs",
+        phRegions: "Asie du Sud-Est, Moyen-Orient",
+        phFocus: "Codes ISO, classes de composants, matériaux, taille de série",
+        phNote: "Contexte facultatif",
+        submit: "Envoyer la demande",
+        formOk: "Reçue. Le bureau répondra s’il y a une adéquation.",
+        formErr: "Le bureau n’a pas pu enregistrer cette demande.",
+        formNet: "Erreur réseau. Réessayez, ou écrivez directement au bureau.",
+        privacy: "Politique de confidentialité",
+        terms: "Conditions générales",
+        cookies: "Politique cookies",
+        footerDesk: "Bureau des introductions",
+      },
+      it: {
+        title: "Meridian Flow Network — Presentazioni private",
+        description: "Una rete privata che collega i produttori europei di precisione agli acquisti in Asia sud-orientale e in Medio Oriente.",
+        navProof: "Prove",
+        navMethod: "Metodo",
+        navAccess: "Richiedi accesso",
+        kicker: "Rete privata di matching",
+        heroTitle: "Precisione europea, presso l’acquirente giusto oltreconfine.",
+        heroLede: "Meridian Flow Network legge i segnali pubblici di procurement in Asia sud-orientale e in Medio Oriente, li valuta sul vostro catalogo tecnico e redige una presentazione multilingue. Nulla parte senza la vostra approvazione.",
+        heroCta: "Richiedi accesso",
+        flow1Title: "Raccolta intelligence",
+        flow1Body: "Gare pubbliche\nEspansioni regionali\nFiling",
+        flow2Title: "Matching catalogo",
+        flow2Body: "Punteggio delle spec europee\nProfili buyer oltreconfine",
+        flow3Title: "Outreach multilingue",
+        flow3Body: "Bozze di presentazione mirate\nMessaggi nella lingua",
+        flow4Title: "Approvazione cliente",
+        flow4Body: "Revisionare i match\nApprovare o rivedere",
+        flowSend: "Invia",
+        flow5Title: "Contratto assicurato",
+        flow5Body: "Comunicazione B2B\nAffare chiuso",
+        proofTitle: "Prova sociale",
+        trustedKicker: "Fiducia della rete",
+        trustedStat: "Scelta da 150+ produttori europei",
+        trustedBody: "Le case europee di precisione usano il desk per presentazioni calibrate — non raffiche da intermediario — verso gli acquisti in Asia sud-orientale e in Medio Oriente.",
+        m1Title: "Case in rete",
+        m1Body: "CNC, oleodinamica, sensori, cuscinetti e carpenteria di processo, ammessi a mano.",
+        m2Title: "Teatri di procurement",
+        m2Body: "Gare, espansioni e filing pubblici osservati in SEA e nel CCG.",
+        m3Title: "Lingue di presentazione",
+        m3Body: "Arabo, thai, vietnamita, bahasa, inglese e le lingue della casa.",
+        m4Title: "Lettere non approvate",
+        m4Body: "Ogni bozza resta sulla vostra scrivania finché non approvate, revisionate o rifiutate.",
+        reviewsTitle: "Recensioni clienti verificate",
+        verified: "Recensione cliente verificata",
+        q1: "«La bozza in arabo nominava la classe del nostro collettore e attendeva la mia firma. È il primo desk di presentazioni che non ci ha messi in imbarazzo davanti a un buyer del Golfo.»",
+        q1Role: "Direzione export · CNC / grado medicale · Baden-Württemberg",
+        q2: "«Non vogliamo essere un altro nome europeo su una lista di gara. Meridian ha tenuto quattro match in bozza; ne abbiamo approvato uno. Il resto non è uscito dallo stabilimento.»",
+        q2Role: "Socio amministratore · oleodinamica · Emilia-Romagna",
+        q3: "«Il punteggio ha eliminato il rumore delle location congressuali. Ci sono arrivati accavallamenti ATEX e PED che un foglio avrebbe perso.»",
+        q3Role: "Responsabile commerciale · sensori industriali · Zurigo / Germania meridionale",
+        valueTitle: "Cosa fa la rete",
+        v1Title: "Intelligence acquirente",
+        v1Body: "Gare estere, espansioni regionali e filing di conformità — strutturati, non scaricati in un foglio.",
+        v2Title: "Matching tecnico",
+        v2Body: "Ogni coppia è valutata su classi ISO, famiglie di componenti e le regioni che servite davvero. Il rumore resta fuori.",
+        v3Title: "Outreach calibrato",
+        v3Body: "Bozze in arabo, thai, vietnamita, bahasa o inglese, scritte come presentazione discreta — mai come raffica da intermediario.",
+        methodTitle: "Come nasce una presentazione",
+        step1Num: "Fase 01",
+        s1Title: "Segnali in ingresso",
+        s1Body: "Il desk osserva fonti pubbliche di procurement e avvisi industriali nei vostri teatri.",
+        step2Num: "Fase 02",
+        s2Title: "Trattenuta in bozza",
+        s2Body: "I match qualificati arrivano con punteggio e lettera. Approvate, rifiutate o attendete.",
+        step3Num: "Fase 03",
+        s3Title: "Invii voi",
+        s3Body: "Solo le presentazioni approvate escono dalla rete, con la vostra ragione sociale e reply-to.",
+        accessTitle: "Richiedi accesso",
+        formNote: "Riservato ai produttori europei di precisione. Ogni richiesta è letta a mano.",
+        labelCompany: "Azienda",
+        labelName: "Il vostro nome",
+        labelEmail: "Email di lavoro",
+        labelCountry: "Paese",
+        labelWebsite: "Sito web",
+        labelCategory: "Categoria di prodotto",
+        labelRegions: "Regioni obiettivo",
+        labelFocus: "Focus tecnico",
+        labelNote: "Nota al desk",
+        phCountry: "Italia",
+        phCategory: "CNC, oleodinamica, sensori",
+        phRegions: "Asia sud-orientale, Medio Oriente",
+        phFocus: "Codici ISO, classi di componente, materiali, lotto tipico",
+        phNote: "Contesto facoltativo",
+        submit: "Invia richiesta",
+        formOk: "Ricevuta. Il desk risponderà se c’è una corrispondenza.",
+        formErr: "Il desk non ha potuto registrare questa richiesta.",
+        formNet: "Errore di rete. Riprovate o scrivete direttamente al desk.",
+        privacy: "Informativa privacy",
+        terms: "Termini e condizioni",
+        cookies: "Cookie policy",
+        footerDesk: "Desk presentazioni",
+      },
+      es: {
+        title: "Meridian Flow Network — Presentaciones privadas",
+        description: "Una red privada que relaciona fabricantes europeos de precisión con compras en el Sudeste Asiático y Oriente Medio.",
+        navProof: "Pruebas",
+        navMethod: "Método",
+        navAccess: "Solicitar acceso",
+        kicker: "Red privada de matching",
+        heroTitle: "Precisión europea, ante el comprador correcto en ultramar.",
+        heroLede: "Meridian Flow Network lee inteligencia pública de compras en el Sudeste Asiático y Oriente Medio, la puntúa contra su catálogo técnico y redacta una presentación multilingüe. Nada se envía hasta que usted lo aprueba.",
+        heroCta: "Solicitar acceso",
+        flow1Title: "Recogida de inteligencia",
+        flow1Body: "Licitaciones públicas\nExpansiones regionales\nFilings",
+        flow2Title: "Matching de catálogo",
+        flow2Body: "Puntuación de specs europeas\nPerfiles de comprador en ultramar",
+        flow3Title: "Alcance multilingüe",
+        flow3Body: "Borradores de presentación dirigidos\nMensajes en el idioma",
+        flow4Title: "Aprobación del cliente",
+        flow4Body: "Revisar emparejamientos\nAprobar o revisar",
+        flowSend: "Enviar",
+        flow5Title: "Contrato asegurado",
+        flow5Body: "Comunicación B2B\nOperación cerrada",
+        proofTitle: "Prueba social",
+        trustedKicker: "Confianza de la red",
+        trustedStat: "La confianza de 150+ fabricantes europeos",
+        trustedBody: "Casas europeas de precisión usan el escritorio para presentaciones calibradas — no envíos de intermediario — hacia compras en el Sudeste Asiático y Oriente Medio.",
+        m1Title: "Casas en la red",
+        m1Body: "CNC, hidráulica, sensores, rodamientos y fabricación de proceso, admitidos a mano.",
+        m2Title: "Teatros de compra",
+        m2Body: "Licitaciones, expansiones y filings públicos observados en SEA y el CCG.",
+        m3Title: "Idiomas de presentación",
+        m3Body: "Árabe, tailandés, vietnamita, bahasa, inglés y las lenguas de la casa.",
+        m4Title: "Cartas sin aprobar",
+        m4Body: "Cada borrador permanece en su escritorio hasta que aprueba, revisa o rechaza.",
+        reviewsTitle: "Reseñas verificadas de clientes",
+        verified: "Reseña verificada de cliente",
+        q1: "«El borrador en árabe nombraba la clase de nuestro manifold y esperaba mi visto bueno. Es el primer escritorio de presentaciones que no nos ha expuesto ante un comprador del Golfo.»",
+        q1Role: "Dirección de exportación · CNC / grado médico · Baden-Wurtemberg",
+        q2: "«No queremos ser un nombre europeo más en una lista de licitación. Meridian retuvo cuatro emparejamientos en borrador; aprobamos uno. El resto no salió de la planta.»",
+        q2Role: "Socio gestor · hidráulica · Emilia-Romaña",
+        q3: "«La puntuación eliminó el ruido de recintos de congresos. Lo que nos llegó fueron solapes ATEX y PED que una hoja de cálculo habría perdido.»",
+        q3Role: "Responsable comercial · sensores industriales · Zúrich / sur de Alemania",
+        valueTitle: "Qué hace la red",
+        v1Title: "Inteligencia de comprador",
+        v1Body: "Licitaciones extranjeras, expansiones regionales y filings de cumplimiento — estructurados, no volcados a una hoja.",
+        v2Title: "Matching técnico",
+        v2Body: "Cada par se puntúa contra clases ISO, familias de componente y las regiones que realmente atienden. El ruido no entra en la bandeja.",
+        v3Title: "Alcance calibrado",
+        v3Body: "Borradores en árabe, tailandés, vietnamita, bahasa o inglés, escritos como una presentación discreta — nunca un envío de intermediario.",
+        methodTitle: "Cómo se hace una presentación",
+        step1Num: "Paso 01",
+        s1Title: "Señales de entrada",
+        s1Body: "El escritorio observa fuentes públicas de compras y avisos industriales en sus teatros.",
+        step2Num: "Paso 02",
+        s2Title: "Retenido como borrador",
+        s2Body: "Los emparejamientos cualificados llegan con puntuación y carta. Usted aprueba, rechaza o espera.",
+        step3Num: "Paso 03",
+        s3Title: "Usted envía",
+        s3Body: "Solo las presentaciones aprobadas salen de la red, con su razón social y reply-to.",
+        accessTitle: "Solicitar acceso",
+        formNote: "Reservado a fabricantes europeos de precisión. Revisamos cada solicitud a mano.",
+        labelCompany: "Empresa",
+        labelName: "Su nombre",
+        labelEmail: "Correo profesional",
+        labelCountry: "País",
+        labelWebsite: "Sitio web",
+        labelCategory: "Categoría de producto",
+        labelRegions: "Regiones objetivo",
+        labelFocus: "Enfoque técnico",
+        labelNote: "Nota al escritorio",
+        phCountry: "España",
+        phCategory: "CNC, hidráulica, sensores",
+        phRegions: "Sudeste Asiático, Oriente Medio",
+        phFocus: "Códigos ISO, clases de componente, materiales, lote típico",
+        phNote: "Contexto opcional",
+        submit: "Enviar solicitud",
+        formOk: "Recibida. El escritorio responderá si hay encaje.",
+        formErr: "El escritorio no pudo registrar esta solicitud.",
+        formNet: "Error de red. Inténtelo de nuevo o escriba directamente al escritorio.",
+        privacy: "Política de privacidad",
+        terms: "Términos y condiciones",
+        cookies: "Política de cookies",
+        footerDesk: "Escritorio de presentaciones",
+      },
+    };
+
+    const form = document.getElementById("inquiry");
+    const status = document.getElementById("form-status");
+    const submit = document.getElementById("submit");
+    const langBtn = document.getElementById("lang-btn");
+    const langMenu = document.getElementById("lang-menu");
+    const langCurrent = document.getElementById("lang-current");
+    let currentLang = "en";
+
+    function applyLang(lang) {
+      const pack = I18N[lang] || I18N.en;
+      currentLang = I18N[lang] ? lang : "en";
+      document.documentElement.lang = currentLang;
+      document.title = pack.title;
+      const meta = document.querySelector('meta[name="description"]');
+      if (meta) meta.setAttribute("content", pack.description);
+      document.querySelectorAll("[data-i18n]").forEach((el) => {
+        const text = pack[el.dataset.i18n];
+        if (text) el.textContent = text;
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+        const text = pack[el.dataset.i18nPlaceholder];
+        if (text) el.setAttribute("placeholder", text);
+      });
+      langCurrent.textContent = LANGS[currentLang];
+      langMenu.querySelectorAll("[data-lang]").forEach((btn) => {
+        btn.setAttribute("aria-selected", btn.dataset.lang === currentLang ? "true" : "false");
+      });
+      try { localStorage.setItem("mfn-lang", currentLang); } catch (err) { /* ignore */ }
+      const url = new URL(window.location.href);
+      url.searchParams.set("lang", currentLang);
+      history.replaceState({}, "", url);
+    }
+
+    function closeLang() {
+      langMenu.hidden = true;
+      langBtn.setAttribute("aria-expanded", "false");
+    }
+
+    langBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const open = langMenu.hidden;
+      langMenu.hidden = !open;
+      langBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    langMenu.addEventListener("click", (event) => {
+      const btn = event.target.closest("[data-lang]");
+      if (!btn) return;
+      applyLang(btn.dataset.lang);
+      closeLang();
+    });
+    document.addEventListener("click", closeLang);
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeLang();
+    });
+
+    function payloadFrom(formEl) {
+      const data = new FormData(formEl);
+      const regions = String(data.get("target_regions") || "")
+        .split(",")
+        .map((part) => part.trim())
+        .filter(Boolean);
+      return {
+        company_name: String(data.get("company_name") || "").trim(),
+        contact_name: String(data.get("contact_name") || "").trim(),
+        email: String(data.get("email") || "").trim(),
+        country: String(data.get("country") || "").trim(),
+        website: String(data.get("website") || "").trim(),
+        product_category: String(data.get("product_category") || "").trim(),
+        target_regions: regions,
+        capabilities: String(data.get("capabilities") || "").trim(),
+        message: String(data.get("message") || "").trim(),
+        fax: String(data.get("fax") || "").trim(),
+      };
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const pack = I18N[currentLang] || I18N.en;
+      status.textContent = "";
+      submit.disabled = true;
+      try {
+        const response = await fetch("/api/inquiries", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payloadFrom(form)),
+        });
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          status.textContent = body.detail || pack.formErr;
+          return;
+        }
+        form.reset();
+        applyLang(currentLang);
+        status.textContent = pack.formOk;
+      } catch (err) {
+        status.textContent = pack.formNet;
+      } finally {
+        submit.disabled = false;
+      }
+    });
+
+    const params = new URLSearchParams(window.location.search);
+    let initial = params.get("lang");
+    if (!initial) {
+      try { initial = localStorage.getItem("mfn-lang"); } catch (err) { initial = "en"; }
+    }
+    applyLang(initial || "en");
+  </script>
+</body>
+</html>

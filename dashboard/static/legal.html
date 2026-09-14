@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Meridian Flow Network — Legal</title>
+  <meta name="description" content="Legal policies for Meridian Flow Network." />
+  <link rel="icon" href="/static/logo.svg" type="image/svg+xml" />
+  <style>
+    :root {
+      --black: #000000;
+      --cyan: #00FFFF;
+      --muted: rgba(0, 255, 255, 0.55);
+      --line: rgba(0, 255, 255, 0.35);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      background: var(--black);
+      color: var(--cyan);
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    }
+    a { color: var(--cyan); text-decoration: none; }
+    .wrap { max-width: 800px; margin: 0 auto; padding: 0 28px; }
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      border-bottom: 1px solid var(--cyan);
+      padding: 18px 0;
+    }
+    .brand { display: block; line-height: 0; }
+    .brand:hover { background: transparent; }
+    .brand img {
+      height: 72px;
+      width: 158px;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      background: #000;
+    }
+    nav .links { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+    nav .links a, footer a {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 2px 0;
+    }
+    nav .links a:hover, footer a:hover { background: var(--cyan); color: var(--black); }
+    .lang { position: relative; }
+    .lang-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--cyan);
+      border: 1px solid var(--cyan);
+      padding: 7px 10px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .lang-btn:hover { background: var(--cyan); color: var(--black); }
+    .lang-menu {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 6px);
+      min-width: 168px;
+      margin: 0;
+      padding: 6px 0;
+      list-style: none;
+      background: var(--black);
+      border: 1px solid var(--cyan);
+      z-index: 20;
+    }
+    .lang-menu button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      color: var(--cyan);
+      border: 0;
+      padding: 8px 12px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .lang-menu button:hover,
+    .lang-menu button[aria-selected="true"] {
+      background: var(--cyan);
+      color: var(--black);
+    }
+    article { padding: 48px 0 64px; }
+    .kicker {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 16px;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(26px, 4vw, 38px);
+      font-weight: 400;
+      letter-spacing: 0.04em;
+    }
+    .updated {
+      color: var(--muted);
+      font-size: 13px;
+      margin: 0 0 32px;
+    }
+    h2 {
+      margin: 28px 0 10px;
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+    p, li {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    ul { padding-left: 18px; }
+    footer {
+      border-top: 1px solid var(--cyan);
+      padding: 22px 0 40px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .legal-links { display: flex; gap: 18px; flex-wrap: wrap; }
+    @media (max-width: 720px) {
+      nav { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav>
+      <a class="brand" href="/" aria-label="Meridian Flow Network">
+        <img src="/static/logo.svg" alt="Meridian Flow Network" width="158" height="72" />
+      </a>
+      <div class="links">
+        <a href="/" data-i18n="home">Public site</a>
+        <div class="lang">
+          <button class="lang-btn" type="button" id="lang-btn" aria-haspopup="listbox" aria-expanded="false">
+            <span id="lang-current">English</span>
+            <span aria-hidden="true">▾</span>
+          </button>
+          <ul class="lang-menu" id="lang-menu" role="listbox" hidden>
+            <li><button type="button" role="option" data-lang="en">English</button></li>
+            <li><button type="button" role="option" data-lang="de">Deutsch</button></li>
+            <li><button type="button" role="option" data-lang="fr">Français</button></li>
+            <li><button type="button" role="option" data-lang="it">Italiano</button></li>
+            <li><button type="button" role="option" data-lang="es">Español</button></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <article id="policy"></article>
+    <footer>
+      <span>Meridian Flow Network</span>
+      <nav class="legal-links" aria-label="Legal">
+        <a href="/privacy" data-i18n="privacy">Privacy Policy</a>
+        <a href="/terms" data-i18n="terms">Terms &amp; Conditions</a>
+        <a href="/cookies" data-i18n="cookies">Cookie Policy</a>
+      </nav>
+    </footer>
+  </div>
+  <script>
+    const LANGS = { en: "English", de: "Deutsch", fr: "Français", it: "Italiano", es: "Español" };
+    const PAGE = {
+      "/privacy": "privacy",
+      "/terms": "terms",
+      "/cookies": "cookies",
+    }[location.pathname] || "privacy";
+
+    const COPY = {
+      en: {
+        home: "Public site",
+        privacy: "Privacy Policy",
+        terms: "Terms & Conditions",
+        cookies: "Cookie Policy",
+        updated: "Last updated 13 September 2026",
+        privacyTitle: "Privacy Policy",
+        privacyKicker: "How the desk handles your data",
+        privacyHtml: `
+          <p>Meridian Flow Network (“we”, “the desk”) operates a private matching service for boutique European precision manufacturers. This policy explains what we collect on the public site and the operations desk, and why.</p>
+          <h2>What we collect</h2>
+          <ul>
+            <li>Access-request fields you submit: company, name, work email, country, website, product category, target regions, technical focus and optional note.</li>
+            <li>Operational records for admitted clients: catalog settings, portal credentials held by the desk, matched-lead drafts and approval decisions.</li>
+            <li>Technical logs needed to run the service (for example, request time and a generic user-agent). We do not sell advertising profiles.</li>
+          </ul>
+          <h2>Why we use it</h2>
+          <p>To review membership by hand, operate the matching pipeline you enable, draft introductions in the languages you approve, and reply from the desk. Legal bases are pre-contractual steps, contract performance, and our legitimate interest in running a private introductions network.</p>
+          <h2>Sharing</h2>
+          <p>Infrastructure is hosted with our database and application providers. We do not sell personal data. An introduction is sent to a named buyer only after you approve the draft. Portal views are limited to the client token issued to that house.</p>
+          <h2>Retention and rights</h2>
+          <p>Unsuccessful access requests are kept only as long as needed to complete the review. Client records stay for the life of the engagement, then as required by accounting or dispute rules. You may ask to access, correct, export or erase your data, or object to processing, by writing the introductions desk from the work email on file. You may also lodge a complaint with your European supervisory authority.</p>
+          <h2>Contact</h2>
+          <p>Write to the introductions desk via the public request form or the reply-to issued to your house.</p>`,
+        termsTitle: "Terms &amp; Conditions",
+        termsKicker: "Using the network",
+        termsHtml: `
+          <p>By requesting access or using a client portal you agree to these terms. The network is a private introductions desk, not a public marketplace and not a guarantee of contracts.</p>
+          <h2>Admission</h2>
+          <p>Membership is reserved for boutique European precision manufacturers and is granted at our discretion after a manual review. We may decline or withdraw access without stating a commercial reason.</p>
+          <h2>The service</h2>
+          <p>We watch public procurement signals, score them against the catalog you supply, and hold multilingual drafts for your approval. You decide what is sent, under your company name and reply-to. We do not place bids, take a sell-side mandate, or represent that a buyer will respond.</p>
+          <h2>Your responsibilities</h2>
+          <p>You warrant that catalog data and outreach parameters are accurate, that you are authorised to use the named sender and domain, and that you will not use the desk to send unlawful, misleading or unsolicited commercial communications outside the approval workflow.</p>
+          <h2>Liability</h2>
+          <p>The desk is provided as a professional matching aid. To the extent permitted by applicable law we exclude liability for lost tenders, lost profits, or buyer silence. Nothing here limits liability that cannot be limited, including death or personal injury caused by negligence, or fraud.</p>
+          <h2>Law</h2>
+          <p>These terms are governed by the laws of England and Wales, without prejudice to mandatory consumer or local protections that apply to you. Disputes will first be raised with the introductions desk.</p>`,
+        cookiesTitle: "Cookie Policy",
+        cookiesKicker: "What this site stores",
+        cookiesHtml: `
+          <p>This public site is designed to run without advertising or analytics cookies. We do not drop third-party marketing pixels.</p>
+          <h2>Essential operation</h2>
+          <p>If the operations desk is placed behind a password, your browser may send an HTTP Basic credential for that session. That is a security control, not a tracking cookie.</p>
+          <h2>Language preference</h2>
+          <p>The header language selector stores your choice in <code>localStorage</code> on this device (<code>mfn-lang</code>) and may reflect it in the page URL. That is not a cookie. Clearing site data resets the language to English.</p>
+          <h2>Client portals</h2>
+          <p>White-label portals identify the house by a path token. No additional tracking cookies are set by the portal page.</p>
+          <h2>Changes</h2>
+          <p>If we introduce optional cookies later, this page will be updated before they are used, and non-essential cookies will wait for your consent where the law requires it.</p>`,
+      },
+      de: {
+        home: "Öffentliche Seite",
+        privacy: "Datenschutz",
+        terms: "AGB",
+        cookies: "Cookie-Richtlinie",
+        updated: "Zuletzt aktualisiert am 13. September 2026",
+        privacyTitle: "Datenschutzerklärung",
+        privacyKicker: "Wie der Desk Ihre Daten behandelt",
+        privacyHtml: `
+          <p>Meridian Flow Network („wir“, „der Desk“) betreibt einen privaten Matching-Dienst für europäische Präzisionshersteller. Diese Erklärung beschreibt, was die öffentliche Seite und der Desk erheben — und warum.</p>
+          <h2>Welche Daten</h2>
+          <ul>
+            <li>Felder der Zugangsanfrage: Unternehmen, Name, geschäftliche E-Mail, Land, Website, Produktkategorie, Zielregionen, technischer Fokus und optionaler Hinweis.</li>
+            <li>Betriebsdaten zugelassener Häuser: Katalogeinstellungen, vom Desk gehaltene Portalzugänge, Entwürfe und Freigaben.</li>
+            <li>Technische Protokolle zum Betrieb (Zeitpunkt, generischer User-Agent). Wir verkaufen keine Werbeprofile.</li>
+          </ul>
+          <h2>Zweck</h2>
+          <p>Manuelle Aufnahmeprüfung, Betrieb der von Ihnen freigeschalteten Pipeline, Entwürfe in den von Ihnen gebilligten Sprachen, Antwort des Desks. Rechtsgrundlagen: vorvertragliche Schritte, Vertragserfüllung und unser berechtigtes Interesse am Betrieb eines privaten Vorstellungsnetzwerks.</p>
+          <h2>Weitergabe</h2>
+          <p>Hosting erfolgt über unsere Datenbank- und Anwendungsanbieter. Personenbezogene Daten werden nicht verkauft. Eine Vorstellung geht erst nach Ihrer Freigabe an einen benannten Einkäufer. Portalansichten sind auf das Token dieses Hauses beschränkt.</p>
+          <h2>Speicher und Rechte</h2>
+          <p>Erfolglose Anfragen nur so lange, wie die Prüfung es verlangt. Mandantendaten für die Dauer der Zusammenarbeit, danach soweit Buchhaltung oder Streitigkeiten es erfordern. Sie können Auskunft, Berichtigung, Export oder Löschung verlangen oder widersprechen — über die hinterlegte Geschäftliche E-Mail an den Desk. Sie können sich an Ihre europäische Aufsichtsbehörde wenden.</p>
+          <h2>Kontakt</h2>
+          <p>Über das öffentliche Formular oder die Ihrem Haus mitgeteilte Reply-to-Adresse.</p>`,
+        termsTitle: "Allgemeine Geschäftsbedingungen",
+        termsKicker: "Nutzung des Netzwerks",
+        termsHtml: `
+          <p>Mit der Zugangsanfrage oder der Nutzung eines Portals akzeptieren Sie diese Bedingungen. Das Netzwerk ist ein privater Vorstellungsdesk, kein Marktplatz und keine Auftraggarantie.</p>
+          <h2>Aufnahme</h2>
+          <p>Mitgliedschaft ist europäischen Präzisionshäusern vorbehalten und steht in unserem Ermessen nach manueller Prüfung. Wir können den Zugang ohne kommerzielle Begründung ablehnen oder entziehen.</p>
+          <h2>Leistung</h2>
+          <p>Wir beobachten öffentliche Beschaffungssignale, bewerten sie gegen Ihren Katalog und halten mehrsprachige Entwürfe zur Freigabe. Sie entscheiden, was unter Ihrem Namen und Reply-to hinausgeht. Wir bieten nicht, übernehmen kein Verkaufsmandat und versprechen keine Antwort des Einkäufers.</p>
+          <h2>Ihre Pflichten</h2>
+          <p>Katalog und Versandparameter müssen zutreffen; Sie müssen zur Nutzung von Absender und Domain berechtigt sein; der Desk darf nicht für rechtswidrige, irreführende oder unverlangte Werbung außerhalb des Freigabewegs genutzt werden.</p>
+          <h2>Haftung</h2>
+          <p>Der Desk ist ein professionelles Matching-Hilfsmittel. Soweit zulässig haften wir nicht für verlorene Ausschreibungen, entgangenen Gewinn oder Schweigen des Einkäufers. Unabdingbare Haftung bleibt unberührt.</p>
+          <h2>Recht</h2>
+          <p>Es gilt das Recht von England und Wales, unbeschadet zwingender Schutzvorschriften. Streitigkeiten zuerst an den Vorstellungsdesk.</p>`,
+        cookiesTitle: "Cookie-Richtlinie",
+        cookiesKicker: "Was diese Seite speichert",
+        cookiesHtml: `
+          <p>Die öffentliche Seite läuft ohne Werbe- oder Analyse-Cookies. Wir setzen keine Marketing-Pixel Dritter.</p>
+          <h2>Wesentlicher Betrieb</h2>
+          <p>Ist der Desk passwortgeschützt, kann der Browser eine HTTP-Basic-Anmeldung für die Sitzung senden. Das ist eine Sicherheitssteuerung, kein Tracking-Cookie.</p>
+          <h2>Sprache</h2>
+          <p>Die Sprachwahl liegt in <code>localStorage</code> (<code>mfn-lang</code>) und kann in der URL stehen. Das ist kein Cookie. Das Löschen der Seitendaten setzt Englisch zurück.</p>
+          <h2>Portale</h2>
+          <p>White-Label-Portale erkennen das Haus über ein Pfad-Token. Die Portalseite setzt keine zusätzlichen Tracking-Cookies.</p>
+          <h2>Änderungen</h2>
+          <p>Sollten später optionale Cookies hinzukommen, wird diese Seite zuvor aktualisiert; nicht wesentliche Cookies warten wo nötig auf Ihre Einwilligung.</p>`,
+      },
+      fr: {
+        home: "Site public",
+        privacy: "Politique de confidentialité",
+        terms: "Conditions générales",
+        cookies: "Politique cookies",
+        updated: "Dernière mise à jour le 13 septembre 2026",
+        privacyTitle: "Politique de confidentialité",
+        privacyKicker: "Comment le bureau traite vos données",
+        privacyHtml: `
+          <p>Meridian Flow Network (« nous », « le bureau ») exploite un service privé de mise en relation pour les fabricants européens de précision. Cette politique décrit ce que le site public et le bureau collectent, et pourquoi.</p>
+          <h2>Données collectées</h2>
+          <ul>
+            <li>Champs de la demande d’accès : société, nom, e-mail professionnel, pays, site, catégorie, régions, focus technique et note facultative.</li>
+            <li>Dossiers opérationnels des maisons admises : catalogue, accès portail tenus par le bureau, brouillons et décisions d’approbation.</li>
+            <li>Journaux techniques (heure, user-agent générique). Nous ne vendons pas de profils publicitaires.</li>
+          </ul>
+          <h2>Finalités</h2>
+          <p>Examen manuel des admissions, pipeline que vous activez, brouillons dans les langues que vous approuvez, réponse du bureau. Bases : mesures précontractuelles, exécution du contrat, intérêt légitime à tenir un réseau d’introductions privé.</p>
+          <h2>Partage</h2>
+          <p>Hébergement chez nos prestataires de base et d’application. Pas de vente de données. Une introduction n’est envoyée à un acheteur nommé qu’après votre accord. Les vues portail sont limitées au jeton de cette maison.</p>
+          <h2>Durée et droits</h2>
+          <p>Demandes sans suite conservées le temps de l’examen. Dossiers clients pendant l’engagement, puis selon les règles comptables ou litigieuses. Vous pouvez demander l’accès, la correction, l’export ou l’effacement, ou vous opposer, en écrivant au bureau depuis l’e-mail professionnel enregistré. Vous pouvez aussi saisir votre autorité européenne.</p>
+          <h2>Contact</h2>
+          <p>Via le formulaire public ou le reply-to communiqué à votre maison.</p>`,
+        termsTitle: "Conditions générales",
+        termsKicker: "Usage du réseau",
+        termsHtml: `
+          <p>En demandant l’accès ou en utilisant un portail, vous acceptez ces conditions. Le réseau est un bureau d’introductions privé, ni place de marché ni promesse de contrat.</p>
+          <h2>Admission</h2>
+          <p>Réservée aux fabricants européens de précision, accordée à notre discrétion après examen manuel. Nous pouvons refuser ou retirer l’accès sans motif commercial.</p>
+          <h2>Service</h2>
+          <p>Nous lisons des signaux publics d’achat, les notons contre votre catalogue et tenons des brouillons multilingues. Vous décidez ce qui part sous votre nom et reply-to. Nous ne déposons pas d’offres, n’avons pas de mandat de vente et ne promettons aucune réponse.</p>
+          <h2>Vos devoirs</h2>
+          <p>Le catalogue et les paramètres d’envoi doivent être exacts ; vous devez être habilité à utiliser l’expéditeur et le domaine ; le bureau ne sert pas à des envois illicites, trompeurs ou non sollicités hors du circuit d’approbation.</p>
+          <h2>Responsabilité</h2>
+          <p>Le bureau est une aide professionnelle. Dans la mesure permise, nous excluons les appels d’offres perdus, le manque à gagner et le silence de l’acheteur. Les responsabilités impératives demeurent.</p>
+          <h2>Droit</h2>
+          <p>Droit d’Angleterre et du Pays de Galles, sans préjudice des protections impératives. Litiges d’abord au bureau.</p>`,
+        cookiesTitle: "Politique cookies",
+        cookiesKicker: "Ce que ce site conserve",
+        cookiesHtml: `
+          <p>Le site public fonctionne sans cookies publicitaires ou analytiques. Aucun pixel marketing tiers.</p>
+          <h2>Fonctionnement essentiel</h2>
+          <p>Si le bureau est protégé par mot de passe, le navigateur peut envoyer une authentification HTTP Basic. C’est un contrôle de sécurité, pas un cookie de suivi.</p>
+          <h2>Langue</h2>
+          <p>Le sélecteur enregistre le choix dans <code>localStorage</code> (<code>mfn-lang</code>) et peut l’inscrire dans l’URL. Ce n’est pas un cookie. Effacer les données du site rétablit l’anglais.</p>
+          <h2>Portails</h2>
+          <p>Les portails white-label identifient la maison par un jeton de chemin. Aucun cookie de suivi supplémentaire.</p>
+          <h2>Évolutions</h2>
+          <p>Si des cookies optionnels apparaissent, cette page sera mise à jour au préalable ; les cookies non essentiels attendront le consentement lorsque la loi l’exige.</p>`,
+      },
+      it: {
+        home: "Sito pubblico",
+        privacy: "Informativa privacy",
+        terms: "Termini e condizioni",
+        cookies: "Cookie policy",
+        updated: "Ultimo aggiornamento 13 settembre 2026",
+        privacyTitle: "Informativa sulla privacy",
+        privacyKicker: "Come il desk tratta i vostri dati",
+        privacyHtml: `
+          <p>Meridian Flow Network (« noi », « il desk ») gestisce un servizio privato di matching per produttori europei di precisione. Questa informativa spiega cosa raccolgono il sito pubblico e il desk, e perché.</p>
+          <h2>Dati raccolti</h2>
+          <ul>
+            <li>Campi della richiesta di accesso: azienda, nome, email di lavoro, paese, sito, categoria, regioni, focus tecnico e nota facoltativa.</li>
+            <li>Archivi operativi delle case ammesse: catalogo, credenziali portale tenute dal desk, bozze e decisioni di approvazione.</li>
+            <li>Log tecnici (orario, user-agent generico). Non vendiamo profili pubblicitari.</li>
+          </ul>
+          <h2>Finalità</h2>
+          <p>Revisione manuale, pipeline che attivate, bozze nelle lingue che approvate, risposta del desk. Basi: misure precontrattuali, esecuzione del contratto e legittimo interesse a condurre una rete privata di presentazioni.</p>
+          <h2>Condivisione</h2>
+          <p>Hosting presso i nostri fornitori di database e applicativo. Nessuna vendita di dati. Una presentazione parte verso un acquirente nominato solo dopo la vostra approvazione. Le viste portale sono limitate al token di quella casa.</p>
+          <h2>Conservazione e diritti</h2>
+          <p>Richieste senza esito solo per il tempo della revisione. Dati clienti per la durata dell’incarico, poi secondo regole contabili o di controversia. Potete chiedere accesso, rettifica, export o cancellazione, o opporvi, scrivendo al desk dall’email di lavoro registrata. Potete anche rivolgervi all’autorità europea competente.</p>
+          <h2>Contatto</h2>
+          <p>Tramite il modulo pubblico o il reply-to comunicato alla vostra casa.</p>`,
+        termsTitle: "Termini e condizioni",
+        termsKicker: "Uso della rete",
+        termsHtml: `
+          <p>Richiedendo l’accesso o usando un portale accettate questi termini. La rete è un desk privato di presentazioni, non un marketplace né una garanzia di contratti.</p>
+          <h2>Ammissione</h2>
+          <p>Riservata ai produttori europei di precisione, a nostra discrezione dopo revisione manuale. Possiamo rifiutare o revocare l’accesso senza motivo commerciale.</p>
+          <h2>Servizio</h2>
+          <p>Osserviamo segnali pubblici di procurement, li valutiamo sul vostro catalogo e teniamo bozze multilingue. Decidete voi cosa parte con la vostra ragione sociale e reply-to. Non presentiamo offerte, non abbiamo mandato di vendita e non promettiamo risposte.</p>
+          <h2>Vostri obblighi</h2>
+          <p>Catalogo e parametri di invio devono essere esatti; dovete essere autorizzati a usare mittente e dominio; il desk non va usato per comunicazioni illecite, ingannevoli o non richieste fuori dal flusso di approvazione.</p>
+          <h2>Responsabilità</h2>
+          <p>Il desk è un ausilio professionale. Nei limiti di legge escludiamo gare perdute, mancato guadagno e silenzio del buyer. Restano le responsabilità inderogabili.</p>
+          <h2>Legge</h2>
+          <p>Diritto di Inghilterra e Galles, fatti salvi i diritti inderogabili. Controversie prima al desk.</p>`,
+        cookiesTitle: "Cookie policy",
+        cookiesKicker: "Cosa memorizza questo sito",
+        cookiesHtml: `
+          <p>Il sito pubblico funziona senza cookie pubblicitari o analitici. Nessun pixel di marketing di terzi.</p>
+          <h2>Funzionamento essenziale</h2>
+          <p>Se il desk è protetto da password, il browser può inviare un’autenticazione HTTP Basic. È un controllo di sicurezza, non un cookie di tracciamento.</p>
+          <h2>Lingua</h2>
+          <p>Il selettore salva la scelta in <code>localStorage</code> (<code>mfn-lang</code>) e può riportarla nell’URL. Non è un cookie. Cancellando i dati del sito si torna all’inglese.</p>
+          <h2>Portali</h2>
+          <p>I portali white-label identificano la casa con un token di percorso. Nessun cookie di tracciamento aggiuntivo.</p>
+          <h2>Modifiche</h2>
+          <p>Se in futuro ci saranno cookie opzionali, questa pagina sarà aggiornata prima; i cookie non essenziali attenderanno il consenso ove richiesto.</p>`,
+      },
+      es: {
+        home: "Sitio público",
+        privacy: "Política de privacidad",
+        terms: "Términos y condiciones",
+        cookies: "Política de cookies",
+        updated: "Última actualización: 13 de septiembre de 2026",
+        privacyTitle: "Política de privacidad",
+        privacyKicker: "Cómo el escritorio trata sus datos",
+        privacyHtml: `
+          <p>Meridian Flow Network («nosotros», «el escritorio») opera un servicio privado de matching para fabricantes europeos de precisión. Esta política explica qué recogen el sitio público y el escritorio, y por qué.</p>
+          <h2>Qué recogemos</h2>
+          <ul>
+            <li>Campos de la solicitud de acceso: empresa, nombre, correo profesional, país, web, categoría, regiones, foco técnico y nota opcional.</li>
+            <li>Registros operativos de las casas admitidas: catálogo, credenciales de portal que guarda el escritorio, borradores y decisiones de aprobación.</li>
+            <li>Registros técnicos (hora, user-agent genérico). No vendemos perfiles publicitarios.</li>
+          </ul>
+          <h2>Finalidad</h2>
+          <p>Revisión manual, pipeline que usted active, borradores en los idiomas que apruebe y respuesta del escritorio. Bases: medidas precontractuales, ejecución del contrato e interés legítimo en operar una red privada de presentaciones.</p>
+          <h2>Cesión</h2>
+          <p>Alojamiento en nuestros proveedores de base de datos y aplicación. No vendemos datos. Una presentación solo se envía a un comprador nombrado tras su aprobación. Las vistas de portal se limitan al token de esa casa.</p>
+          <h2>Conservación y derechos</h2>
+          <p>Solicitudes sin éxito solo el tiempo de la revisión. Datos de cliente durante el encargo y luego según normas contables o de litigio. Puede pedir acceso, rectificación, exportación o supresión, u oponerse, escribiendo al escritorio desde el correo profesional registrado. También puede acudir a su autoridad europea.</p>
+          <h2>Contacto</h2>
+          <p>Mediante el formulario público o el reply-to comunicado a su casa.</p>`,
+        termsTitle: "Términos y condiciones",
+        termsKicker: "Uso de la red",
+        termsHtml: `
+          <p>Al solicitar acceso o usar un portal acepta estos términos. La red es un escritorio privado de presentaciones, no un mercado ni una garantía de contratos.</p>
+          <h2>Admisión</h2>
+          <p>Reservada a fabricantes europeos de precisión, a nuestra discreción tras revisión manual. Podemos denegar o retirar el acceso sin motivo comercial.</p>
+          <h2>Servicio</h2>
+          <p>Observamos señales públicas de compra, las puntuamos contra su catálogo y retenemos borradores multilingües. Usted decide qué se envía con su razón social y reply-to. No presentamos ofertas, no tenemos mandato de venta y no prometemos respuesta.</p>
+          <h2>Sus deberes</h2>
+          <p>El catálogo y los parámetros de envío deben ser exactos; debe estar autorizado a usar el remitente y el dominio; el escritorio no se usará para comunicaciones ilícitas, engañosas o no solicitadas fuera del flujo de aprobación.</p>
+          <h2>Responsabilidad</h2>
+          <p>El escritorio es una ayuda profesional. En la medida permitida excluimos licitaciones perdidas, lucro cesante y silencio del comprador. Quedan las responsabilidades irrenunciables.</p>
+          <h2>Ley</h2>
+          <p>Derecho de Inglaterra y Gales, sin perjuicio de protecciones imperativas. Controversias primero ante el escritorio.</p>`,
+        cookiesTitle: "Política de cookies",
+        cookiesKicker: "Qué almacena este sitio",
+        cookiesHtml: `
+          <p>El sitio público funciona sin cookies publicitarias ni analíticas. No colocamos píxeles de marketing de terceros.</p>
+          <h2>Operación esencial</h2>
+          <p>Si el escritorio está protegido por contraseña, el navegador puede enviar autenticación HTTP Basic. Es un control de seguridad, no una cookie de seguimiento.</p>
+          <h2>Idioma</h2>
+          <p>El selector guarda la elección en <code>localStorage</code> (<code>mfn-lang</code>) y puede reflejarla en la URL. No es una cookie. Borrar los datos del sitio restablece el inglés.</p>
+          <h2>Portales</h2>
+          <p>Los portales white-label identifican la casa por un token de ruta. No se fijan cookies de seguimiento adicionales.</p>
+          <h2>Cambios</h2>
+          <p>Si más adelante hubiera cookies opcionales, esta página se actualizará antes; las no esenciales esperarán el consentimiento cuando la ley lo exija.</p>`,
+      },
+    };
+
+    const langBtn = document.getElementById("lang-btn");
+    const langMenu = document.getElementById("lang-menu");
+    const langCurrent = document.getElementById("lang-current");
+
+    function applyLang(lang) {
+      const pack = COPY[lang] || COPY.en;
+      const code = COPY[lang] ? lang : "en";
+      document.documentElement.lang = code;
+      document.title = "Meridian Flow Network — " + pack[PAGE + "Title"].replace(/&amp;/g, "&");
+      document.querySelectorAll("[data-i18n]").forEach((el) => {
+        if (pack[el.dataset.i18n]) el.textContent = pack[el.dataset.i18n];
+      });
+      document.getElementById("policy").innerHTML =
+        `<p class="kicker">${pack[PAGE + "Kicker"]}</p>` +
+        `<h1>${pack[PAGE + "Title"]}</h1>` +
+        `<p class="updated">${pack.updated}</p>` +
+        pack[PAGE + "Html"];
+      langCurrent.textContent = LANGS[code];
+      langMenu.querySelectorAll("[data-lang]").forEach((btn) => {
+        btn.setAttribute("aria-selected", btn.dataset.lang === code ? "true" : "false");
+      });
+      try { localStorage.setItem("mfn-lang", code); } catch (err) { /* ignore */ }
+      const url = new URL(window.location.href);
+      url.searchParams.set("lang", code);
+      history.replaceState({}, "", url);
+    }
+
+    function closeLang() {
+      langMenu.hidden = true;
+      langBtn.setAttribute("aria-expanded", "false");
+    }
+    langBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const open = langMenu.hidden;
+      langMenu.hidden = !open;
+      langBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    langMenu.addEventListener("click", (event) => {
+      const btn = event.target.closest("[data-lang]");
+      if (!btn) return;
+      applyLang(btn.dataset.lang);
+      closeLang();
+    });
+    document.addEventListener("click", closeLang);
+
+    const params = new URLSearchParams(location.search);
+    let initial = params.get("lang");
+    if (!initial) {
+      try { initial = localStorage.getItem("mfn-lang"); } catch (err) { initial = "en"; }
+    }
+    applyLang(initial || "en");
+  </script>
+</body>
+</html>

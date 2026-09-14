@@ -1,0 +1,42 @@
+[
+  {
+    "company_name": "PETRONAS Chemicals Group Berhad",
+    "country": "",
+    "target_industry": "",
+    "technical_requirements": "",
+    "raw_text": "SOURCE: https://www.petronas.com/who-we-are/doing-business-with-us\n\nPETRONAS Chemicals Group issues vendor pre-qualification for corrosion-resistant hydraulic control valves, PED-certified manifolds, and ISO 9001 / ISO 14001 process fittings for downstream petrochemical trains in Kerteh and Pengerang, Malaysia. Required classes: hydraulic valves, flanges, ATEX instrumentation. Preferred suppliers hold IATF 16949 or PED module H. Target industry: oil, gas and petrochemicals. Country of operation: Malaysia.",
+    "status": "pending_enrichment"
+  },
+  {
+    "company_name": "Emirates Steel Arkan",
+    "country": "",
+    "target_industry": "",
+    "technical_requirements": "",
+    "raw_text": "SOURCE: https://www.adnoc.ae/en/our-services/procurement\n\nEmirates Steel Arkan (Abu Dhabi, United Arab Emirates) is seeking European precision CNC-machined industrial components, tight-tolerance shafts, and stainless manifolds for rolling-mill upgrades. Specifications: ISO 9001, 5-axis CNC, titanium and duplex stainless capability. Component classes: shaft, spindle, precision machining. Industry: steel and heavy industry.",
+    "status": "pending_enrichment"
+  },
+  {
+    "company_name": "Thai Oil Public Company Limited",
+    "country": "",
+    "target_industry": "",
+    "technical_requirements": "",
+    "raw_text": "SOURCE: https://www.thaioilgroup.com/\n\nThai Oil (Sriracha, Thailand) procurement bulletin: heat-exchanger cores, shell-and-tube replacements, gaskets and PED-certified flanges for CDU/VDU turnaround. Vendors must evidence ISO 9001, PED, and heat exchanger fabrication references. Country: Thailand. Industry: refining.",
+    "status": "pending_enrichment"
+  },
+  {
+    "company_name": "VinFast Trading and Production JSC",
+    "country": "",
+    "target_industry": "",
+    "technical_requirements": "",
+    "raw_text": "SOURCE: https://vinfastauto.com/\n\nVinFast industrial purchasing (Hai Phong, Vietnam) requests precision bearings, linear guides, ball screws and high-grade fasteners for EV powertrain assembly lines. Required: ISO 9001, ISO 14001. Component classes: bearing, linear guide, ball screw, fastener. Country: Vietnam. Industry: automotive manufacturing.",
+    "status": "pending_enrichment"
+  },
+  {
+    "company_name": "QatarEnergy",
+    "country": "",
+    "target_industry": "",
+    "technical_requirements": "",
+    "raw_text": "SOURCE: https://www.qatarenergy.qa/\n\nQatarEnergy supplier registration for ATEX / IECEx process sensors, pressure transmitters and actuators on North Field expansion packages. Certifications: ISO 9001, ATEX, IECEx. Country: Qatar. Industry: energy and LNG.",
+    "status": "pending_enrichment"
+  }
+]
