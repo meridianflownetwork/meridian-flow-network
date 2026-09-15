@@ -47,3 +47,19 @@ services:
         sync: false
       - key: RETAINER_ACCESS_TOKEN
         sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+      - key: ZOHO_USER
+        sync: false
+      - key: ZOHO_PASS
+        sync: false
+      - key: REQUEST_ACCESS_TO
+        value: eli.mulla@meridianflownetwork.com

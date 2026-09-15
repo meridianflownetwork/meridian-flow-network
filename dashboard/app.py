@@ -8,6 +8,7 @@ and lets an operator move a lead from draft -> approved or sent.
 from __future__ import annotations
 
 import base64
+import json
 import os
 import re
 import secrets
@@ -15,11 +16,12 @@ from collections import Counter
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Literal
+from urllib.parse import parse_qs
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, ValidationError, field_validator
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from meridian.auth import (
@@ -60,6 +62,7 @@ from meridian.billing import (
 )
 from meridian.config import load_settings
 from meridian.db import connect, connect_portal
+from meridian.mail import MailSendError, send_access_request_email
 from meridian.portal_fixtures import REVISION_DRAFT_STATUS, ensure_revision_requested_lead
 
 STATIC = Path(__file__).resolve().parent / "static"
@@ -70,6 +73,7 @@ PUBLIC_PATHS = frozenset({
     "/",
     "/health",
     "/api/inquiries",
+    "/api/request-access",
     "/privacy",
     "/terms",
     "/cookies",
@@ -116,7 +120,9 @@ APP_HOST_REWRITES = {
 def _is_public(request: Request) -> bool:
     path = request.url.path
     if path in PUBLIC_PATHS:
-        return path != "/api/inquiries" or request.method in {"POST", "OPTIONS"}
+        if path == "/api/inquiries":
+            return request.method in {"POST", "OPTIONS"}
+        return True
     return any(path.startswith(prefix) for prefix in PUBLIC_PREFIXES)
 
 
@@ -286,6 +292,53 @@ class ClientSettingsPayload(BaseModel):
         if "@" not in value or "." not in value.split("@")[-1]:
             raise ValueError("reply_to_email must be a valid address")
         return value
+
+
+class AccessRequestPayload(BaseModel):
+    company: str = Field(..., min_length=2, max_length=200)
+    your_name: str = Field(..., min_length=2, max_length=160)
+    work_email: str = Field(..., min_length=5, max_length=200)
+    country: str = ""
+    website: str = ""
+    product_category: str = ""
+    target_regions: list[str] = Field(default_factory=list)
+    technical_focus: str = ""
+    note_to_the_desk: str = ""
+    fax: str = ""
+
+    @field_validator(
+        "company",
+        "your_name",
+        "country",
+        "website",
+        "product_category",
+        "technical_focus",
+        "note_to_the_desk",
+        "fax",
+        mode="before",
+    )
+    @classmethod
+    def _strip(cls, value: Any) -> Any:
+        return value.strip() if isinstance(value, str) else value
+
+    @field_validator("work_email")
+    @classmethod
+    def _email(cls, value: str) -> str:
+        text = value.strip() if isinstance(value, str) else str(value)
+        if "@" not in text or "." not in text.split("@")[-1]:
+            raise ValueError("A valid work email is required")
+        return text
+
+    @field_validator("target_regions", mode="before")
+    @classmethod
+    def _regions(cls, value: Any) -> list[str]:
+        if value is None or value == "":
+            return []
+        if isinstance(value, str):
+            return [part.strip() for part in value.split(",") if part.strip()]
+        if isinstance(value, list):
+            return [str(part).strip() for part in value if str(part).strip()]
+        return []
 
 
 class InquiryPayload(BaseModel):
@@ -783,10 +836,53 @@ def ops() -> FileResponse:
     return FileResponse(STATIC / "index.html")
 
 
-@app.post("/api/inquiries")
-def create_inquiry(payload: InquiryPayload) -> dict[str, Any]:
-    if payload.fax:
-        return {"ok": True}
+CONFIRM_MESSAGE = "Request received. We review every request by hand."
+
+
+def _inquiry_fields(payload: InquiryPayload) -> dict[str, Any]:
+    return {
+        "company": payload.company_name,
+        "your_name": payload.contact_name,
+        "work_email": payload.email,
+        "country": payload.country,
+        "website": payload.website,
+        "product_category": payload.product_category,
+        "target_regions": payload.target_regions,
+        "technical_focus": payload.capabilities,
+        "note_to_the_desk": payload.message,
+    }
+
+
+def _access_fields(payload: AccessRequestPayload) -> dict[str, Any]:
+    return {
+        "company": payload.company,
+        "your_name": payload.your_name,
+        "work_email": payload.work_email,
+        "country": payload.country,
+        "website": payload.website,
+        "product_category": payload.product_category,
+        "target_regions": payload.target_regions,
+        "technical_focus": payload.technical_focus,
+        "note_to_the_desk": payload.note_to_the_desk,
+    }
+
+
+def _inquiry_from_access(payload: AccessRequestPayload) -> InquiryPayload:
+    return InquiryPayload(
+        company_name=payload.company,
+        contact_name=payload.your_name,
+        email=payload.work_email,
+        country=payload.country,
+        website=payload.website,
+        product_category=payload.product_category,
+        target_regions=payload.target_regions,
+        capabilities=payload.technical_focus,
+        message=payload.note_to_the_desk,
+        fax=payload.fax,
+    )
+
+
+def _store_inquiry(payload: InquiryPayload) -> dict[str, Any] | None:
     row = {
         "company_name": payload.company_name,
         "contact_name": payload.contact_name,
@@ -799,11 +895,61 @@ def create_inquiry(payload: InquiryPayload) -> dict[str, Any]:
         "message": payload.message or None,
         "status": "pending",
     }
-    db = _client()
-    result = db.table("pending_inquiries").insert(row).execute()
-    created = (result.data or [None])[0]
+    result = _client().table("pending_inquiries").insert(row).execute()
+    return (result.data or [None])[0]
+
+
+def _email_access_request(fields: dict[str, Any], *, reply_to: str) -> None:
+    try:
+        send_access_request_email(fields, reply_to=reply_to)
+    except MailSendError as exc:
+        raise HTTPException(status_code=500, detail=f"SMTP error: {exc}") from exc
+
+
+async def _read_access_payload(request: Request) -> AccessRequestPayload:
+    content_type = (request.headers.get("content-type") or "").lower()
+    body = (await request.body()).decode("utf-8", errors="replace")
+    if "application/json" in content_type or body.lstrip().startswith(("{", "[")):
+        try:
+            raw = json.loads(body) if body.strip() else {}
+        except Exception as exc:
+            raise HTTPException(status_code=400, detail="Expected a JSON object") from exc
+        if not isinstance(raw, dict):
+            raise HTTPException(status_code=400, detail="Expected a JSON object")
+    else:
+        parsed = parse_qs(body, keep_blank_values=True)
+        raw = {key: (values[-1] if values else "") for key, values in parsed.items()}
+    try:
+        return AccessRequestPayload.model_validate(raw)
+    except ValidationError as exc:
+        raise HTTPException(status_code=422, detail=exc.errors()) from exc
+
+
+@app.post("/api/request-access")
+async def request_access(request: Request) -> dict[str, Any]:
+    payload = await _read_access_payload(request)
+    if payload.fax:
+        return {"ok": True, "message": CONFIRM_MESSAGE}
+    _email_access_request(_access_fields(payload), reply_to=payload.work_email)
+    created: dict[str, Any] | None = None
+    try:
+        created = _store_inquiry(_inquiry_from_access(payload))
+    except Exception:
+        created = None
+    return {"ok": True, "message": CONFIRM_MESSAGE, "id": (created or {}).get("id")}
+
+
+@app.post("/api/inquiries")
+def create_inquiry(payload: InquiryPayload) -> dict[str, Any]:
+    if payload.fax:
+        return {"ok": True}
+    created = _store_inquiry(payload)
     if not created:
         raise HTTPException(status_code=500, detail="Inquiry was not stored")
+    try:
+        send_access_request_email(_inquiry_fields(payload), reply_to=payload.email)
+    except Exception:
+        pass
     return {"ok": True, "id": created.get("id")}
 
 

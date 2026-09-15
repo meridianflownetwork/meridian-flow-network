@@ -408,6 +408,27 @@
       letter-spacing: 0.04em;
       min-height: 1.2em;
     }
+    .status.is-ok {
+      color: var(--cyan);
+      border: 1px solid var(--cyan);
+      padding: 12px 14px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .status.is-err { color: #ff6b6b; }
+    form.is-received {
+      display: block;
+    }
+    form.is-received .form-confirm {
+      margin: 0;
+      color: var(--cyan);
+      border: 1px solid var(--cyan);
+      padding: 18px 16px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      line-height: 1.5;
+    }
     footer {
       border-top: 1px solid var(--cyan);
       padding: 22px 0 40px;
@@ -651,16 +672,16 @@ Deal closed</p>
       <form id="inquiry" novalidate>
         <p class="form-note" data-i18n="formNote">Reserved for boutique European precision manufacturers. We review every request by hand.</p>
         <div>
-          <label for="company_name" data-i18n="labelCompany">Company</label>
-          <input id="company_name" name="company_name" autocomplete="organization" required maxlength="200" />
+          <label for="company" data-i18n="labelCompany">Company</label>
+          <input id="company" name="company" autocomplete="organization" required maxlength="200" />
         </div>
         <div>
-          <label for="contact_name" data-i18n="labelName">Your name</label>
-          <input id="contact_name" name="contact_name" autocomplete="name" required maxlength="160" />
+          <label for="your_name" data-i18n="labelName">Your name</label>
+          <input id="your_name" name="your_name" autocomplete="name" required maxlength="160" />
         </div>
         <div>
-          <label for="email" data-i18n="labelEmail">Work email</label>
-          <input id="email" name="email" type="email" autocomplete="email" required maxlength="200" />
+          <label for="work_email" data-i18n="labelEmail">Work email</label>
+          <input id="work_email" name="work_email" type="email" autocomplete="email" required maxlength="200" />
         </div>
         <div>
           <label for="country" data-i18n="labelCountry">Country</label>
@@ -679,12 +700,12 @@ Deal closed</p>
           <input id="target_regions" name="target_regions" maxlength="240" data-i18n-placeholder="phRegions" placeholder="Southeast Asia, Middle East" />
         </div>
         <div class="full">
-          <label for="capabilities" data-i18n="labelFocus">Technical focus</label>
-          <textarea id="capabilities" name="capabilities" maxlength="2000" data-i18n-placeholder="phFocus" placeholder="ISO codes, component classes, materials, typical series size"></textarea>
+          <label for="technical_focus" data-i18n="labelFocus">Technical focus</label>
+          <textarea id="technical_focus" name="technical_focus" maxlength="2000" data-i18n-placeholder="phFocus" placeholder="ISO codes, component classes, materials, typical series size"></textarea>
         </div>
         <div class="full">
-          <label for="message" data-i18n="labelNote">Note to the desk</label>
-          <textarea id="message" name="message" maxlength="2000" data-i18n-placeholder="phNote" placeholder="Optional context"></textarea>
+          <label for="note_to_the_desk" data-i18n="labelNote">Note to the desk</label>
+          <textarea id="note_to_the_desk" name="note_to_the_desk" maxlength="2000" data-i18n-placeholder="phNote" placeholder="Optional context"></textarea>
         </div>
         <div class="hp" aria-hidden="true">
           <label for="fax">Fax</label>
@@ -693,7 +714,7 @@ Deal closed</p>
         <div class="full">
           <button type="submit" id="submit" data-i18n="submit">Submit request</button>
         </div>
-        <p class="status" id="form-status" role="status"></p>
+        <p class="status" id="form-status" role="status" aria-live="polite"></p>
       </form>
     </section>
 
@@ -793,7 +814,7 @@ Deal closed</p>
         phFocus: "ISO codes, component classes, materials, typical series size",
         phNote: "Optional context",
         submit: "Submit request",
-        formOk: "Received. The introductions desk will reply if there is a fit.",
+        formOk: "Request received. We review every request by hand.",
         formErr: "The desk could not record this request.",
         formNet: "Network error. Try again, or write the desk directly.",
         privacy: "Privacy Policy",
@@ -876,7 +897,7 @@ Deal closed</p>
         phFocus: "ISO-Codes, Bauteilklassen, Werkstoffe, typische Losgröße",
         phNote: "Optionaler Kontext",
         submit: "Anfrage senden",
-        formOk: "Eingegangen. Der Vorstellungsdesk antwortet, wenn es eine Passung gibt.",
+        formOk: "Anfrage erhalten. Wir prüfen jede Anfrage von Hand.",
         formErr: "Der Desk konnte diese Anfrage nicht aufnehmen.",
         formNet: "Netzwerkfehler. Bitte erneut versuchen oder den Desk direkt schreiben.",
         privacy: "Datenschutz",
@@ -959,7 +980,7 @@ Deal closed</p>
         phFocus: "Codes ISO, classes de composants, matériaux, taille de série",
         phNote: "Contexte facultatif",
         submit: "Envoyer la demande",
-        formOk: "Reçue. Le bureau répondra s’il y a une adéquation.",
+        formOk: "Demande reçue. Nous examinons chaque demande à la main.",
         formErr: "Le bureau n’a pas pu enregistrer cette demande.",
         formNet: "Erreur réseau. Réessayez, ou écrivez directement au bureau.",
         privacy: "Politique de confidentialité",
@@ -1042,7 +1063,7 @@ Deal closed</p>
         phFocus: "Codici ISO, classi di componente, materiali, lotto tipico",
         phNote: "Contesto facoltativo",
         submit: "Invia richiesta",
-        formOk: "Ricevuta. Il desk risponderà se c’è una corrispondenza.",
+        formOk: "Richiesta ricevuta. Esaminiamo ogni richiesta a mano.",
         formErr: "Il desk non ha potuto registrare questa richiesta.",
         formNet: "Errore di rete. Riprovate o scrivete direttamente al desk.",
         privacy: "Informativa privacy",
@@ -1125,7 +1146,7 @@ Deal closed</p>
         phFocus: "Códigos ISO, clases de componente, materiales, lote típico",
         phNote: "Contexto opcional",
         submit: "Enviar solicitud",
-        formOk: "Recibida. El escritorio responderá si hay encaje.",
+        formOk: "Solicitud recibida. Revisamos cada solicitud a mano.",
         formErr: "El escritorio no pudo registrar esta solicitud.",
         formNet: "Error de red. Inténtelo de nuevo o escriba directamente al escritorio.",
         privacy: "Política de privacidad",
@@ -1197,42 +1218,55 @@ Deal closed</p>
         .map((part) => part.trim())
         .filter(Boolean);
       return {
-        company_name: String(data.get("company_name") || "").trim(),
-        contact_name: String(data.get("contact_name") || "").trim(),
-        email: String(data.get("email") || "").trim(),
+        company: String(data.get("company") || "").trim(),
+        your_name: String(data.get("your_name") || "").trim(),
+        work_email: String(data.get("work_email") || "").trim(),
         country: String(data.get("country") || "").trim(),
         website: String(data.get("website") || "").trim(),
         product_category: String(data.get("product_category") || "").trim(),
         target_regions: regions,
-        capabilities: String(data.get("capabilities") || "").trim(),
-        message: String(data.get("message") || "").trim(),
+        technical_focus: String(data.get("technical_focus") || "").trim(),
+        note_to_the_desk: String(data.get("note_to_the_desk") || "").trim(),
         fax: String(data.get("fax") || "").trim(),
       };
+    }
+
+    function showConfirmation(message) {
+      const confirm = document.createElement("p");
+      confirm.className = "form-confirm";
+      confirm.setAttribute("role", "status");
+      confirm.textContent = message;
+      form.replaceChildren(confirm);
+      form.classList.add("is-received");
     }
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       const pack = I18N[currentLang] || I18N.en;
       status.textContent = "";
+      status.classList.remove("is-ok", "is-err");
       submit.disabled = true;
       try {
-        const response = await fetch("/api/inquiries", {
+        const response = await fetch("/api/request-access", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payloadFrom(form)),
         });
         const body = await response.json().catch(() => ({}));
         if (!response.ok) {
-          status.textContent = body.detail || pack.formErr;
+          status.classList.add("is-err");
+          const detail = Array.isArray(body.detail) ? pack.formErr : body.detail;
+          status.textContent = detail || pack.formErr;
           return;
         }
-        form.reset();
-        applyLang(currentLang);
-        status.textContent = pack.formOk;
+        showConfirmation(body.message || pack.formOk);
       } catch (err) {
+        status.classList.add("is-err");
         status.textContent = pack.formNet;
       } finally {
-        submit.disabled = false;
+        if (!form.classList.contains("is-received")) {
+          submit.disabled = false;
+        }
       }
     });
 
