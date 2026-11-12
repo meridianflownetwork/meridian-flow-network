@@ -8,6 +8,7 @@ import ssl
 import sys
 import traceback
 from email.message import EmailMessage
+from email.utils import formataddr
 from pathlib import Path
 from typing import Mapping
 
@@ -19,6 +20,8 @@ from meridian.brand import info, warn
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 DEFAULT_ACCESS_TO = "hello@meridianflownetwork.com"
+DESK_FROM_NAME = "Meridian Flow Network"
+DESK_ADDRESS = "hello@meridianflownetwork.com"
 ACCESS_REQUEST_FIELDS = (
     ("company", "Company"),
     ("your_name", "Your name"),
@@ -97,6 +100,26 @@ def mail_configured() -> bool:
     return bool(settings["host"] and settings["user"] and settings["password"])
 
 
+def desk_sender_address() -> str:
+    """Authenticated desk address: DEFAULT_SENDER, then SMTP_USER."""
+    explicit = _env("DEFAULT_SENDER", "SMTP_USER", "ZOHO_USER")
+    if explicit:
+        return explicit
+    settings = smtp_settings()
+    return str(settings["user"] or settings["sender"] or DESK_ADDRESS)
+
+
+def introduction_envelope(reply_to: str = "") -> dict[str, str]:
+    """Option A: desk From, manufacturer Reply-To, desk Cc."""
+    desk = desk_sender_address()
+    routed = (reply_to or "").strip() or desk
+    return {
+        "from": formataddr((DESK_FROM_NAME, desk)),
+        "reply_to": routed,
+        "cc": desk,
+    }
+
+
 def format_key_value_body(fields: Mapping[str, object], *, heading: str = "") -> str:
     lines: list[str] = []
     if heading:
@@ -121,12 +144,14 @@ def send_plain_email(
     subject: str,
     body: str,
     reply_to: str = "",
+    cc: str = "",
+    from_header: str = "",
 ) -> None:
     settings = smtp_settings()
     host = str(settings["host"])
     user = str(settings["user"])
     password = str(settings["password"])
-    sender = str(settings["sender"]) or user
+    sender = from_header or str(settings["sender"]) or user
     port = int(settings["port"])
     if not host or not user or not password:
         _mail_log(
@@ -137,14 +162,19 @@ def send_plain_email(
     message = EmailMessage()
     message["From"] = sender
     message["To"] = to_addr
+    if cc.strip():
+        message["Cc"] = cc.strip()
     message["Subject"] = subject
     if reply_to:
         message["Reply-To"] = reply_to
     message.set_content(body)
     mode = "SMTP_SSL" if settings["use_ssl"] else ("SMTP+STARTTLS" if settings["starttls"] else "SMTP")
-    _mail_log(
-        f"Attempting SMTP connect to {host}:{port} ({mode}) as {user} from {sender}"
-    )
+    route = f"from {sender}"
+    if reply_to:
+        route += f" reply-to {reply_to}"
+    if cc.strip():
+        route += f" cc {cc.strip()}"
+    _mail_log(f"Attempting SMTP connect to {host}:{port} ({mode}) as {user} {route}")
     try:
         if settings["use_ssl"]:
             context = ssl.create_default_context()
@@ -173,6 +203,25 @@ def send_plain_email(
         sys.stderr.flush()
         raise MailSendError(str(exc)) from exc
     _mail_log(f"Sent '{subject}' to {to_addr}")
+
+
+def send_introduction(
+    *,
+    to_addr: str,
+    subject: str,
+    body: str,
+    reply_to: str = "",
+) -> None:
+    """Send a match introduction with Option A routing."""
+    envelope = introduction_envelope(reply_to)
+    send_plain_email(
+        to_addr=to_addr,
+        subject=subject,
+        body=body,
+        reply_to=envelope["reply_to"],
+        cc=envelope["cc"],
+        from_header=envelope["from"],
+    )
 
 
 def access_request_recipient() -> str:
