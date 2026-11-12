@@ -62,7 +62,7 @@ from meridian.billing import (
 )
 from meridian.config import load_settings
 from meridian.db import connect, connect_portal
-from meridian.mail import MailSendError, send_access_request_email
+from meridian.mail import MailConfigError, MailSendError, send_access_request_email, send_introduction
 from meridian.portal_fixtures import REVISION_DRAFT_STATUS, ensure_revision_requested_lead
 
 STATIC = Path(__file__).resolve().parent / "static"
@@ -1031,11 +1031,129 @@ def list_leads() -> dict[str, Any]:
     return {"leads": _hydrate(db, rows)}
 
 
+_LABELED_EMAIL_RE = re.compile(
+    r"(?:e-?mail|contact)\s*[:\-]\s*([A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,})",
+    re.IGNORECASE,
+)
+
+
+def _mapping(value: object) -> dict[str, Any]:
+    if isinstance(value, dict):
+        return value
+    if isinstance(value, str) and value.strip().startswith("{"):
+        try:
+            parsed = json.loads(value)
+        except json.JSONDecodeError:
+            return {}
+        return parsed if isinstance(parsed, dict) else {}
+    return {}
+
+
+def _explicit_email(value: object) -> str:
+    text = str(value or "").strip()
+    return text if valid_email(text) else ""
+
+
+def _buyer_recipient(buyer: dict[str, Any]) -> str:
+    for key in ("email", "contact_email", "procurement_email"):
+        found = _explicit_email(buyer.get(key))
+        if found:
+            return found
+    payload = _mapping(buyer.get("signal_payload"))
+    for key in ("email", "contact_email", "procurement_email", "buyer_email"):
+        found = _explicit_email(payload.get(key))
+        if found:
+            return found
+    blob = "\n".join(str(buyer.get(field) or "") for field in ("raw_text", "technical_requirements"))
+    labeled = _LABELED_EMAIL_RE.search(blob)
+    if labeled and valid_email(labeled.group(1)):
+        return labeled.group(1)
+    return ""
+
+
+def _draft_message(draft: str) -> tuple[str, str]:
+    subject = "Introduction — Meridian Flow Network"
+    lines = draft.splitlines()
+    body_at = 0
+    for index, line in enumerate(lines):
+        stripped = line.strip()
+        lower = stripped.lower()
+        if lower.startswith("subject:"):
+            subject = stripped.split(":", 1)[1].strip() or subject
+            body_at = index + 1
+            continue
+        if lower.startswith("language:"):
+            body_at = index + 1
+            continue
+        if body_at and not stripped:
+            body_at = index + 1
+            break
+        if body_at:
+            break
+    body = "\n".join(lines[body_at:]).strip()
+    return subject, body or draft.strip()
+
+
+def _dispatch_introduction(db, lead_id: str) -> None:
+    rows = (
+        db.table("matched_leads")
+        .select("id, buyer_id, client_id, outreach_draft, approval_status")
+        .eq("id", lead_id)
+        .limit(1)
+        .execute()
+        .data
+        or []
+    )
+    if not rows:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    lead = rows[0]
+    if (lead.get("approval_status") or "") == "sent":
+        raise HTTPException(status_code=409, detail="This introduction has already been sent")
+    draft = (lead.get("outreach_draft") or "").strip()
+    if not draft:
+        raise HTTPException(status_code=400, detail="This introduction has no draft to send")
+    clients = (
+        db.table("client_catalog")
+        .select("id, reply_to_email")
+        .eq("id", lead.get("client_id"))
+        .limit(1)
+        .execute()
+        .data
+        or []
+    )
+    if not clients:
+        raise HTTPException(status_code=404, detail="Manufacturer not found")
+    buyers = (
+        db.table("scraped_buyers")
+        .select("id, company_name, raw_text, technical_requirements, signal_payload")
+        .eq("id", lead.get("buyer_id"))
+        .limit(1)
+        .execute()
+        .data
+        or []
+    )
+    if not buyers:
+        raise HTTPException(status_code=404, detail="Buyer not found")
+    to_addr = _buyer_recipient(buyers[0])
+    if not to_addr:
+        raise HTTPException(status_code=400, detail="This buyer has no email address for the introduction")
+    subject, body = _draft_message(draft)
+    reply_to = str(clients[0].get("reply_to_email") or "")
+    try:
+        send_introduction(to_addr=to_addr, subject=subject, body=body, reply_to=reply_to)
+    except MailConfigError as exc:
+        raise HTTPException(status_code=503, detail="Outbound mail is not configured") from exc
+    except MailSendError as exc:
+        raise HTTPException(status_code=502, detail="The introduction could not be sent") from exc
+
+
 @app.post("/api/leads/{lead_id}/status")
 def update_status(lead_id: str, payload: StatusPayload) -> dict[str, Any]:
     if payload.status not in ALLOWED_STATUSES:
         raise HTTPException(status_code=400, detail="Invalid approval_status")
     db = _client()
+    if payload.status == "sent":
+        _dispatch_introduction(db, lead_id)
     patch: dict[str, Any] = {"approval_status": payload.status}
     if payload.status == "revision_requested":
         patch["revision_note"] = payload.note or None
