@@ -172,6 +172,8 @@ def main() -> None:
     )
 
     if not mock and not settings.llm_ready:
+        if settings.llm_provider == "nvidia":
+            fail("enrich", "Set NVIDIA_API_KEY, or pass --mock")
         fail("enrich", "Set OPENAI_API_KEY or ANTHROPIC_API_KEY, or pass --mock")
 
     llm = None if mock else LLMClient(settings)

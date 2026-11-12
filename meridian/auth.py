@@ -6,10 +6,8 @@ import hashlib
 import os
 import re
 import secrets
-import smtplib
 import time
 from datetime import datetime, timedelta, timezone
-from email.message import EmailMessage
 from typing import Any, Literal
 from urllib.parse import urljoin
 
@@ -20,6 +18,7 @@ from fastapi.responses import JSONResponse, RedirectResponse, Response
 from meridian.brand import info, warn
 from meridian.config import load_settings
 from meridian.db import connect
+from meridian.mail import send_plain_email, smtp_settings
 
 Scope = Literal["desk", "portal"]
 Role = Literal["operator", "portal"]
@@ -378,26 +377,11 @@ def send_reset_email(*, to_addr: str, reset_url: str, scope: Scope) -> None:
         f"Open this link within one hour:\n{reset_url}\n\n"
         "If you did not request this, you can ignore the message.\n"
     )
-    host = os.getenv("SMTP_HOST", "").strip()
-    if not host:
+    settings = smtp_settings()
+    if not settings["host"]:
         info("auth", f"SMTP unset — password reset link for {to_addr}: {reset_url}")
         return
-    message = EmailMessage()
-    sender = os.getenv("SMTP_FROM", "").strip() or os.getenv("SMTP_USER", "").strip() or "noreply@localhost"
-    message["From"] = sender
-    message["To"] = to_addr
-    message["Subject"] = subject
-    message.set_content(body)
-    port = int(os.getenv("SMTP_PORT", "587") or "587")
-    user = os.getenv("SMTP_USER", "").strip()
-    password = os.getenv("SMTP_PASSWORD", "")
-    use_tls = os.getenv("SMTP_STARTTLS", "1").strip() not in {"0", "false", "no"}
-    with smtplib.SMTP(host, port, timeout=20) as smtp:
-        if use_tls:
-            smtp.starttls()
-        if user:
-            smtp.login(user, password)
-        smtp.send_message(message)
+    send_plain_email(to_addr=to_addr, subject=subject, body=body)
     info("auth", f"Password reset sent ({scope})")
 
 

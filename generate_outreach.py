@@ -204,6 +204,8 @@ def main() -> None:
     settings = load_settings(require=("SUPABASE_URL", "SUPABASE_KEY"))
     mock = args.mock or settings.llm_provider == "mock"
     if not mock and not settings.llm_ready:
+        if settings.llm_provider == "nvidia":
+            fail("outreach", "Set NVIDIA_API_KEY, or pass --mock")
         fail("outreach", "Set OPENAI_API_KEY or ANTHROPIC_API_KEY, or pass --mock")
 
     llm = None if mock else LLMClient(settings)

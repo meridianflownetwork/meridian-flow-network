@@ -30,7 +30,7 @@ services:
       - key: DASHBOARD_PASSWORD
         sync: false
       - key: OPERATOR_EMAIL
-        sync: false
+        value: eli.mulla@meridianflownetwork.com
       - key: OPERATOR_PASSWORD
         sync: false
       - key: PORTAL_DEFAULT_PASSWORD
@@ -48,18 +48,20 @@ services:
       - key: RETAINER_ACCESS_TOKEN
         sync: false
       - key: SMTP_HOST
-        sync: false
+        value: smtp.zoho.eu
       - key: SMTP_PORT
-        sync: false
+        value: "587"
       - key: SMTP_USER
-        sync: false
+        value: hello@meridianflownetwork.com
       - key: SMTP_PASSWORD
         sync: false
       - key: SMTP_FROM
         sync: false
+      - key: DEFAULT_SENDER
+        value: hello@meridianflownetwork.com
       - key: ZOHO_USER
         sync: false
       - key: ZOHO_PASS
         sync: false
       - key: REQUEST_ACCESS_TO
-        value: eli.mulla@meridianflownetwork.com
+        value: hello@meridianflownetwork.com

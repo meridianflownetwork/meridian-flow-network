@@ -1,17 +1,21 @@
-"""Unified OpenAI / Anthropic client with JSON-first responses."""
+"""Unified OpenAI / Anthropic / NVIDIA NIM client with JSON-first responses."""
 
 from __future__ import annotations
 
 import json
+import os
 import re
 from typing import Any
 
 from meridian.brand import fail, info, warn
 from meridian.config import Settings
 
+NVIDIA_MODEL = "nvidia/nemotron-3.5-bolt-e4b"
+
 DEFAULT_MODELS = {
     "openai": "gpt-4o-mini",
     "anthropic": "claude-sonnet-4-0",
+    "nvidia": NVIDIA_MODEL,
     "mock": "local-mock",
 }
 
@@ -35,6 +39,16 @@ class LLMClient:
             import anthropic
 
             self._anthropic = anthropic.Anthropic(api_key=settings.anthropic_api_key)
+        elif self.provider == "nvidia":
+            if not os.environ.get("NVIDIA_API_KEY"):
+                fail("llm", "LLM_PROVIDER=nvidia but NVIDIA_API_KEY is empty")
+            from openai import OpenAI
+
+            self.model = NVIDIA_MODEL
+            self._openai = OpenAI(
+                base_url="https://integrate.api.nvidia.com/v1",
+                api_key=os.environ.get("NVIDIA_API_KEY"),
+            )
         else:
             if not settings.openai_api_key:
                 fail("llm", "OPENAI_API_KEY is empty — set it or switch LLM_PROVIDER=mock")
@@ -49,7 +63,7 @@ class LLMClient:
             return json.dumps({"error": "use complete_json in mock mode"})
         if self._openai is not None:
             response = self._openai.chat.completions.create(
-                model=self.model,
+                model="nvidia/nemotron-3.5-bolt-e4b" if self.provider == "nvidia" else self.model,
                 temperature=temperature,
                 response_format={"type": "json_object"},
                 messages=[

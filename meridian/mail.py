@@ -18,8 +18,7 @@ from meridian.brand import info, warn
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
-DEFAULT_ACCESS_TO = "eli.mulla@meridianflownetwork.com"
-DEFAULT_ZOHO_HOST = "smtp.zoho.eu"
+DEFAULT_ACCESS_TO = "hello@meridianflownetwork.com"
 ACCESS_REQUEST_FIELDS = (
     ("company", "Company"),
     ("your_name", "Your name"),
@@ -73,16 +72,13 @@ def _mail_log(message: str, *, err: bool = False) -> None:
 def smtp_settings() -> dict[str, str | int | bool]:
     user = _env("ZOHO_USER", "SMTP_USER")
     password = os.getenv("ZOHO_PASS") or os.getenv("ZOHO_PASSWORD") or os.getenv("SMTP_PASSWORD") or ""
-    host = _env("SMTP_HOST", "ZOHO_HOST")
-    if not host and user:
-        lowered = user.lower()
-        host = "smtp.zoho.com" if lowered.endswith("@zoho.com") else DEFAULT_ZOHO_HOST
-    port_raw = _env("SMTP_PORT", "ZOHO_PORT") or "587"
+    host = os.getenv("SMTP_HOST", os.getenv("ZOHO_HOST", "smtp.zoho.eu")).strip() or "smtp.zoho.eu"
+    port_raw = os.getenv("SMTP_PORT", os.getenv("ZOHO_PORT", "587")).strip() or "587"
     try:
         port = int(port_raw)
     except ValueError:
         port = 587
-    sender = _env("SMTP_FROM", "ZOHO_FROM") or user
+    sender = _env("DEFAULT_SENDER", "SMTP_FROM", "ZOHO_FROM") or user or "hello@meridianflownetwork.com"
     use_ssl = port == 465 or _env("SMTP_SSL", "ZOHO_SSL").lower() in {"1", "true", "yes"}
     starttls = not use_ssl and _env("SMTP_STARTTLS", "ZOHO_STARTTLS") not in {"0", "false", "no"}
     return {

@@ -30,6 +30,7 @@ class Settings:
     apify_actor_id: str
     openai_api_key: str
     anthropic_api_key: str
+    nvidia_api_key: str
     llm_provider: str
     llm_model: str
     match_score_threshold: float
@@ -62,6 +63,8 @@ class Settings:
             return True
         if self.llm_provider == "anthropic":
             return bool(self.anthropic_api_key)
+        if self.llm_provider == "nvidia":
+            return bool(self.nvidia_api_key)
         return bool(self.openai_api_key)
 
     def _database_password(self) -> str:
@@ -116,6 +119,7 @@ def load_settings(*, require: tuple[str, ...] = ()) -> Settings:
         apify_actor_id=_get("APIFY_ACTOR_ID", "apify/website-content-crawler"),
         openai_api_key=_get("OPENAI_API_KEY"),
         anthropic_api_key=_get("ANTHROPIC_API_KEY"),
+        nvidia_api_key=_get("NVIDIA_API_KEY"),
         llm_provider=_get("LLM_PROVIDER", "openai").lower(),
         llm_model=_get("LLM_MODEL"),
         match_score_threshold=float(_get("MATCH_SCORE_THRESHOLD", "60")),
@@ -128,6 +132,7 @@ def load_settings(*, require: tuple[str, ...] = ()) -> Settings:
         "APIFY_TOKEN": settings.apify_token,
         "OPENAI_API_KEY": settings.openai_api_key,
         "ANTHROPIC_API_KEY": settings.anthropic_api_key,
+        "NVIDIA_API_KEY": settings.nvidia_api_key,
     }
     missing = [name for name in require if not aliases.get(name)]
     if missing:
